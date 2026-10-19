@@ -91,7 +91,7 @@ async function loadPageConfig() {
         title: audio.title || 'Gang Theme',
         artist: audio.artist || 'Audio Stream',
         src: audio.src || '',
-        cover: audio.cover || theme.logoImage || '/uploads/logo.png',
+        cover: resolveAssetUrl(audio.cover || theme.logoImage || '/uploads/logo.png'),
         sfxEnabled: audio.sfxEnabled !== false
       });
     } else if (window.audioPlayer && shouldPlayMusic && !window.audioPlayer.isPlaying) {
@@ -414,7 +414,7 @@ function createOperativeCardHtml(m, overrideType) {
       <!-- Left Side: Profile Picture (รูปโปรไฟล์) -->
       <div class="card-avatar-side">
         <div class="card-avatar-frame">
-          <img src="${avatar}" alt="${name}" loading="lazy" onerror="this.src='/uploads/logo.png';" />
+          <img src="${avatar}" alt="${name}" loading="lazy" onerror="this.src='./uploads/logo.png';" />
         </div>
       </div>
 
