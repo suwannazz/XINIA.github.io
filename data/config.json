@@ -37,17 +37,17 @@
   "audio": {
     "enabled": true,
     "autoPlay": false,
-    "type": "youtube",
-    "youtubeUrl": "https://youtu.be/P0lBlxk_460?si=1UXkDJIGsBx3vuIa",
-    "startTime": "0.59",
+    "type": "mp3",
+    "youtubeUrl": "",
+    "startTime": "0",
     "endTime": "0",
     "loop": true,
     "sfxEnabled": false,
-    "volume": 0.3,
+    "volume": 0.35,
     "title": "Around Me",
     "artist": "Noodah05",
-    "src": "https://pub-7827a1beaea74d1bb210e941351e7a23.r2.dev/mali-theme.mp3",
-    "cover": "https://img.youtube.com/vi/P0lBlxk_460/mqdefault.jpg"
+    "src": "/uploads/music.mp3",
+    "cover": "/uploads/logo.png"
   },
   "security": {
     "adminPin": "admin123"

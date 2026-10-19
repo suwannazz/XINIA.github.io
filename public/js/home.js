@@ -129,7 +129,7 @@ function applyHomeConfig(config) {
       volume: audio.volume ?? 0.35,
       title: audio.title || 'Gang Theme',
       artist: audio.artist || 'Audio Stream',
-      src: audio.src || '',
+      src: resolveAssetUrl(audio.src || '/uploads/music.mp3'),
       cover: resolveAssetUrl(audio.cover || theme.logoImage || '/uploads/logo.png'),
       sfxEnabled: audio.sfxEnabled !== false
     });
