@@ -119,7 +119,7 @@ async function loadPageConfig() {
       const base = getAppBasePath();
       const urls = [base + 'data/config.json', './data/config.json', 'data/config.json'];
       for (const u of urls) {
-        res = await fetch(u).catch(() => null);
+        res = await fetch(`${u}?_t=${Date.now()}`, { cache: 'no-store' }).catch(() => null);
         if (res && res.ok) break;
       }
     }
@@ -257,7 +257,8 @@ async function fetchOperatives() {
 
       for (const url of candidateUrls) {
         try {
-          const staticRes = await fetch(url);
+          const fetchUrl = `${url}?_t=${Date.now()}`;
+          const staticRes = await fetch(fetchUrl, { cache: 'no-store' });
           if (staticRes && staticRes.ok) {
             const rawMembers = await staticRes.json();
             if (Array.isArray(rawMembers) && rawMembers.length > 0) {

@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const base = getAppBasePath();
         const urls = [base + 'data/config.json', './data/config.json', 'data/config.json'];
         for (const u of urls) {
-          res = await fetch(u).catch(() => null);
+          res = await fetch(`${u}?_t=${Date.now()}`, { cache: 'no-store' }).catch(() => null);
           if (res && res.ok) break;
         }
       }
