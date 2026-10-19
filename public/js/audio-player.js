@@ -570,9 +570,6 @@ class GangAudioPlayer {
     wrapper.id = 'gang-audio-player-wrapper';
     wrapper.className = 'cyber-audio-widget';
 
-    const fullSongUrl = this.options.youtubeUrl || this.options.src || '#';
-    const hasFullSongUrl = !!(this.options.youtubeUrl || this.options.src);
-
     wrapper.innerHTML = `
       <div class="cyber-audio-card" id="cyber-audio-card">
         
@@ -641,18 +638,6 @@ class GangAudioPlayer {
             </div>
             <input type="range" class="cyber-audio-vol-slider" id="audio-vol-slider" min="0" max="1" step="0.05" value="${this.options.volume}">
             <span class="audio-vol-value" id="audio-vol-val">${Math.round(this.options.volume * 100)}%</span>
-          </div>
-
-          <!-- Drawer Action Buttons -->
-          <div class="audio-drawer-actions">
-            ${hasFullSongUrl ? `
-              <a href="${fullSongUrl}" target="_blank" rel="noopener noreferrer" class="btn-audio-open-yt" id="btn-audio-open-yt" title="เปิดฟังเพลงเต็มบน YouTube">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                </svg>
-                <span>เปิดฟังเพลงเต็ม</span>
-              </a>
-            ` : ''}
           </div>
 
         </div>
