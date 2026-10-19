@@ -525,8 +525,8 @@ class GangAudioPlayer {
         <div class="cyber-audio-compact-bar" id="audio-compact-bar" title="คลิกเพื่อขยายปรับระดับเสียง / ดูเวลาเพลง">
           <!-- Left Artwork / Equalizer Disc -->
           <div class="cyber-audio-thumb" id="audio-thumb-btn">
-            <img src="${this.options.cover || './uploads/logo.png'}" id="audio-cover-img" alt="Artwork" onerror="this.onerror=null; this.src='./uploads/logo.png';" />
-            <div class="cyber-audio-overlay">
+            ${this.options.cover ? `<img src="${this.options.cover}" id="audio-cover-img" alt="Artwork" onerror="this.style.display='none';" />` : ''}
+            <div class="cyber-audio-overlay ${!this.options.cover ? 'no-cover' : ''}">
               <div class="equalizer-bars" id="audio-equalizer">
                 <span class="bar bar-1"></span>
                 <span class="bar bar-2"></span>

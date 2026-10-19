@@ -51,6 +51,19 @@ function copyDirRecursive(src, dest) {
 async function main() {
   banner();
 
+  // ตรวจสอบ node_modules (กรณีเปิดบนเครื่องใหม่ที่ยังไม่ได้รัน npm install)
+  const nodeModulesPath = path.join(__dirname, 'node_modules');
+  if (!fs.existsSync(nodeModulesPath)) {
+    console.log(`${C_YELLOW}[*] ตรวจพบว่ายังไม่มีไลบรารี่ (node_modules)${C_RESET}`);
+    console.log(`${C_CYAN}[*] กำลังติดตั้งไลบรารี่อัตโนมัติ (npm install) กรุณารอสักครู่...${C_RESET}`);
+    try {
+      execSync('npm install', { stdio: 'inherit', cwd: __dirname });
+      console.log(`${C_GREEN}[+] ติดตั้งไลบรารี่สำเร็จเรียบร้อย!${C_RESET}\n`);
+    } catch (e) {
+      console.log(`${C_RED}[!] ไม่สามารถรัน npm install อัตโนมัติได้: ${e.message}${C_RESET}\n`);
+    }
+  }
+
   console.log(`${C_YELLOW}[*] กำลังตรวจสอบสถานะ Node.js Server...${C_RESET}`);
   const isRunning = await checkServerReady(3000);
 

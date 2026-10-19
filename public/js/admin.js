@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setupFileUploads();
   setupMemberModal();
   setupMyProfile();
-  setupYouTubeTestPlayer();
+  setupAudioTestPlayer();
 });
 
 // ================= AUTHENTICATION & ROLE MANAGEMENT =================
@@ -396,14 +396,11 @@ function populateFormWithConfig(cfg) {
   setSlider('three_roughness', threeD.roughness ?? 0.25);
   setSlider('three_scale', threeD.scale ?? 1.0);
 
-  // Tab 4: Audio & YouTube
+  // Tab 4: MP3 Audio
   setCheckbox('audio_enabled', audio.enabled !== false);
   setCheckbox('audio_autoPlay', audio.autoPlay === true);
   setCheckbox('audio_loop', audio.loop !== false);
   setCheckbox('audio_sfxEnabled', audio.sfxEnabled !== false);
-  setValue('audio_youtubeUrl', audio.youtubeUrl || '');
-  setValue('audio_startTime', audio.startTime ?? 0);
-  setValue('audio_endTime', audio.endTime ?? 0);
   setSlider('audio_volume', audio.volume ?? 0.35);
   setValue('audio_title', audio.title || '');
   setValue('audio_artist', audio.artist || '');
@@ -438,21 +435,7 @@ function setSlider(id, val) {
 
 // ================= SAVE CONFIGURATION =================
 async function saveAllConfig() {
-  const ytUrl = (document.getElementById('audio_youtubeUrl')?.value || '').trim();
-  let coverUrl = (document.getElementById('audio_cover')?.value || '').trim();
-
-  // Auto extract cover from YouTube if empty
-  if (ytUrl && !coverUrl) {
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = ytUrl.match(regExp);
-    if (match && match[2].length === 11) {
-      coverUrl = `https://img.youtube.com/vi/${match[2]}/mqdefault.jpg`;
-      const coverInput = document.getElementById('audio_cover');
-      if (coverInput) coverInput.value = coverUrl;
-      setPreview('preview_audioCover', coverUrl);
-    }
-  }
-
+  const coverUrl = (document.getElementById('audio_cover')?.value || '').trim();
   const currentGang = activeConfig.gang || {};
   const currentTheme = activeConfig.theme || {};
   const currentThree = activeConfig.threeD || {};
@@ -512,17 +495,17 @@ async function saveAllConfig() {
     audio: {
       enabled: getCheck('audio_enabled', currentAudio.enabled),
       autoPlay: getCheck('audio_autoPlay', currentAudio.autoPlay),
-      type: ytUrl ? 'youtube' : (currentAudio.type || 'youtube'),
-      youtubeUrl: ytUrl || currentAudio.youtubeUrl || '',
-      startTime: getVal('audio_startTime', currentAudio.startTime || '0'),
-      endTime: getVal('audio_endTime', currentAudio.endTime || ''),
+      type: 'mp3',
+      youtubeUrl: '',
+      startTime: '0',
+      endTime: '0',
       loop: getCheck('audio_loop', currentAudio.loop),
       sfxEnabled: getCheck('audio_sfxEnabled', currentAudio.sfxEnabled),
       volume: getNum('audio_volume', currentAudio.volume ?? 0.35),
       title: getVal('audio_title', currentAudio.title || ''),
       artist: getVal('audio_artist', currentAudio.artist || ''),
-      src: getVal('audio_src', currentAudio.src || ''),
-      cover: coverUrl || currentAudio.cover || ''
+      src: getVal('audio_src', currentAudio.src || '/uploads/music.mp3'),
+      cover: coverUrl
     }
   };
 
@@ -1314,89 +1297,49 @@ async function fetchYouTubeInfo(url, isManual = false) {
   }
 }
 
-function setupYouTubeTestPlayer() {
-  const btnTest = document.getElementById('btn-test-youtube-play');
-  const ytInput = document.getElementById('audio_youtubeUrl');
-  const btnFetch = document.getElementById('btn-fetch-yt');
+function setupAudioTestPlayer() {
+  const btnTest = document.getElementById('btn-test-mp3-play');
+  if (!btnTest) return;
 
-  // Auto fetch when pasting or changing URL
-  if (ytInput) {
-    ytInput.addEventListener('paste', () => {
-      setTimeout(() => {
-        const url = ytInput.value.trim();
-        if (url) fetchYouTubeInfo(url, false);
-      }, 80);
-    });
+  btnTest.addEventListener('click', () => {
+    const src = (document.getElementById('audio_src')?.value || '').trim();
+    const volume = parseFloat(document.getElementById('audio_volume')?.value || '0.35');
 
-    ytInput.addEventListener('change', () => {
-      const url = ytInput.value.trim();
-      if (url) fetchYouTubeInfo(url, false);
-    });
-  }
+    if (!src) {
+      showToast('กรุณาระบุไฟล์เพลงหรือ URL .mp3 ก่อนทดสอบฟัง', true);
+      return;
+    }
 
-  // Manual Fetch Button
-  if (btnFetch) {
-    btnFetch.addEventListener('click', () => {
-      const url = ytInput ? ytInput.value.trim() : '';
-      if (!url) {
-        showToast('กรุณากรอกลิงก์ YouTube ก่อนกดดึงข้อมูล', true);
-        return;
-      }
-      fetchYouTubeInfo(url, true);
-    });
-  }
+    if (adminTestAudioPlayer && !adminTestAudioPlayer.paused) {
+      adminTestAudioPlayer.pause();
+      adminTestAudioPlayer = null;
+      btnTest.textContent = '▶ ทดสอบฟังเพลง (Test Play)';
+      showToast('หยุดเล่นเพลงทดสอบแล้ว');
+      return;
+    }
 
-  // Test Playback Button
-  if (btnTest) {
-    btnTest.addEventListener('click', () => {
-      const ytUrl = document.getElementById('audio_youtubeUrl').value.trim();
-      const startTime = document.getElementById('audio_startTime').value.trim();
-      const endTime = document.getElementById('audio_endTime').value.trim();
-      const loop = document.getElementById('audio_loop').checked;
-      const volume = parseFloat(document.getElementById('audio_volume').value);
+    if (adminTestAudioPlayer) {
+      adminTestAudioPlayer.pause();
+      adminTestAudioPlayer = null;
+    }
 
-      if (!ytUrl) {
-        showToast('กรุณากรอกลิงก์ YouTube ก่อนทดสอบฟัง', true);
-        return;
-      }
-
-      // If already playing, stop and reset
-      if (adminTestAudioPlayer && adminTestAudioPlayer.isPlaying) {
-        adminTestAudioPlayer.stop();
-        btnTest.textContent = '▶ ทดสอบฟังท่อนนี้ (Test Playback)';
-        showToast('หยุดเล่นเพลงทดสอบแล้ว');
-        return;
-      }
-
-      // Clean up previous test player instance so new start/end timestamps apply immediately
-      if (adminTestAudioPlayer) {
-        adminTestAudioPlayer.stop();
-        const prevWidget = document.getElementById('gang-audio-player-wrapper');
-        if (prevWidget) prevWidget.remove();
-        const prevYtDiv = document.getElementById('yt-player-hidden');
-        if (prevYtDiv) prevYtDiv.remove();
-        adminTestAudioPlayer = null;
-      }
-
-      if (window.GangAudioPlayer) {
-        adminTestAudioPlayer = new window.GangAudioPlayer({
-          enabled: true,
-          type: 'youtube',
-          youtubeUrl: ytUrl,
-          startTime: startTime,
-          endTime: endTime,
-          loop: loop,
-          autoPlay: true,
-          volume: volume,
-          title: document.getElementById('audio_title').value.trim() || 'Testing Stream',
-          artist: document.getElementById('audio_artist').value.trim() || 'YouTube Audio',
-          sfxEnabled: false
-        });
-        showToast(`กำลังเริ่มทดสอบเล่นจากท่อน: ${startTime || '0:00'}`);
+    try {
+      adminTestAudioPlayer = new Audio(src);
+      adminTestAudioPlayer.volume = isNaN(volume) ? 0.35 : Math.max(0, Math.min(1, volume));
+      adminTestAudioPlayer.play().then(() => {
         btnTest.textContent = '⏸ หยุดทดสอบฟัง';
-      }
-    });
-  }
+        showToast('กำลังเล่นเพลงทดสอบ...');
+      }).catch(err => {
+        showToast('ไม่สามารถเล่นไฟล์เสียงได้ กรุณาตรวจสอบลิงก์หรือไฟล์ .mp3', true);
+      });
+      adminTestAudioPlayer.addEventListener('ended', () => {
+        btnTest.textContent = '▶ ทดสอบฟังเพลง (Test Play)';
+        adminTestAudioPlayer = null;
+      });
+    } catch (e) {
+      showToast('เกิดข้อผิดพลาดในการโหลดไฟล์เสียง', true);
+    }
+  });
 }
 
 function showToast(msg, isError = false) {

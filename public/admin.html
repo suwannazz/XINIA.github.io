@@ -478,11 +478,11 @@
         <section class="tab-pane" id="tab-audio">
           <div class="admin-card">
             <div class="card-title-bar">
-              <h2>🎵 ระบบเครื่องเล่นเพลง (YouTube & Audio Engine)</h2>
-              <p>รองรับทั้งลิงก์ YouTube และไฟล์เสียง พร้อมเลือกท่อนเริ่มเพลง (Timestamp) และวนลูปท่อนฮิต</p>
+              <h2>🎵 ระบบเครื่องเล่นเพลง (MP3 Audio Engine)</h2>
+              <p>ระบบเล่นไฟล์เสียงประจำแก๊ง (.mp3) เล่นทันที โหลดเร็ว ไม่มีโฆษณาคั่น 100%</p>
             </div>
 
-            <div class="form-grid-2" style="margin-bottom:1.5rem;">
+            <div class="form-grid-3" style="margin-bottom:1.5rem;">
               <div class="form-group">
                 <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;">
                   <input type="checkbox" id="audio_enabled" />
@@ -496,52 +496,33 @@
                   <span>เล่นเพลงอัตโนมัติเมื่อเปิดเว็บ (Autoplay)</span>
                 </label>
               </div>
+
+              <div class="form-group">
+                <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;">
+                  <input type="checkbox" id="audio_loop" checked />
+                  <span>เล่นวนซ้ำเมื่อเพลงจบ (Loop Playback)</span>
+                </label>
+              </div>
             </div>
 
-            <!-- YouTube Audio Mode Settings -->
+            <!-- MP3 Audio File Upload & Path -->
             <div class="admin-card" style="background:rgba(0,0,0,0.3);border-color:rgba(0,240,255,0.2);margin-bottom:1.5rem;">
               <div class="card-title-bar" style="margin-bottom:1rem;border-bottom:1px solid rgba(0,240,255,0.15);">
                 <h3 style="font-family:var(--font-tech);font-size:1rem;color:var(--admin-accent);">
-                  ▶️ เล่นเพลงผ่านลิงก์ YouTube (YouTube Stream Link)
+                  🎧 ไฟล์เพลงประจำแก๊ง (.mp3)
                 </h3>
               </div>
 
               <div class="form-group">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
-                  <label style="margin:0;">ลิงก์ YouTube (YouTube Video URL)</label>
-                  <span id="yt-fetch-status" style="font-size:0.75rem;color:#00f0ff;font-family:var(--font-tech);display:none;"></span>
-                </div>
-                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                  <input type="text" id="audio_youtubeUrl" class="form-input" style="flex:1;min-width:260px;" placeholder="https://www.youtube.com/watch?v=... หรือ https://youtu.be/..." />
-                  <button type="button" id="btn-fetch-yt" class="btn-action-fetch" style="background:linear-gradient(135deg, #00f0ff, #0284c7);color:#020617;font-weight:700;font-family:var(--font-tech);border:none;padding:0.6rem 1rem;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;font-size:0.8rem;white-space:nowrap;transition:all 0.2s;">
-                    ⚡ ดึงชื่อเพลง & ศิลปิน
+                <label>อัปโหลดไฟล์เพลง MP3 หรือระบุ URL ลิงก์ตรง</label>
+                <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">
+                  <input type="file" id="upload_audio_file" accept=".mp3,audio/*" class="form-input" style="flex:1;min-width:240px;padding:0.45rem;" />
+                  <input type="text" id="audio_src" class="form-input" style="flex:2;min-width:260px;" placeholder="/uploads/music.mp3 หรือ URL ลิงก์ตรงของไฟล์เพลง .mp3" />
+                  <button type="button" class="hud-btn" id="btn-test-mp3-play" style="background:rgba(0,240,255,0.15);border-color:#00f0ff;color:#00f0ff;white-space:nowrap;">
+                    ▶ ทดสอบฟังเพลง (Test Play)
                   </button>
                 </div>
-                <p style="font-size:0.75rem;color:#64748b;margin-top:0.35rem;">* <strong>อัตโนมัติ:</strong> วางลิงก์ YouTube ระบบจะดึงชื่อเพลง ศิลปิน ปก และเวลาเริ่มท่อนเพลง (หากมีในลิงก์) ให้อัตโนมัติ</p>
-              </div>
-
-              <div class="form-grid-3" style="margin-top:1rem;">
-                <div class="form-group">
-                  <label>⏱️ เริ่มเล่นท่อนไหน (Start Timestamp)</label>
-                  <input type="text" id="audio_startTime" class="form-input" placeholder="เช่น 0:45 หรือ 45 (วินาที)" />
-                  <p style="font-size:0.7rem;color:#94a3b8;margin-top:0.25rem;">พิมพ์เป็น 0:45 หรือตัวเลขวินาที</p>
-                </div>
-
-                <div class="form-group">
-                  <label>⏱️ จบท่อนที่ (End Timestamp - ตัวเลือก)</label>
-                  <input type="text" id="audio_endTime" class="form-input" placeholder="เช่น 1:30 หรือ 90 (0 = เล่นจนจบ)" />
-                  <p style="font-size:0.7rem;color:#94a3b8;margin-top:0.25rem;">ปล่อยว่างหรือใส่ 0 เพื่อเล่นจนจบ</p>
-                </div>
-
-                <div class="form-group" style="display:flex;flex-direction:column;justify-content:center;">
-                  <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;margin-top:0.5rem;">
-                    <input type="checkbox" id="audio_loop" checked />
-                    <span style="font-size:0.85rem;color:#ffffff;font-weight:700;">วนลูปเฉพาะท่อนนี้ซ้ำ (Loop Section)</span>
-                  </label>
-                  <button type="button" class="hud-btn" id="btn-test-youtube-play" style="margin-top:0.75rem;background:rgba(0,240,255,0.15);border-color:#00f0ff;color:#00f0ff;">
-                    ▶ ทดสอบฟังท่อนนี้ (Test Playback)
-                  </button>
-                </div>
+                <p style="font-size:0.75rem;color:#64748b;margin-top:0.35rem;">* สามารถเลือกไฟล์ .mp3 จากในเครื่อง ระบบจะอัปโหลดมาเก็บไว้ที่ <code>public/uploads/</code> ให้อัตโนมัติ</p>
               </div>
             </div>
 
@@ -549,31 +530,24 @@
             <div class="form-grid-2">
               <div class="form-group">
                 <label>ชื่อเพลง (Song Title)</label>
-                <input type="text" id="audio_title" class="form-input" placeholder="e.g. Come Through" />
+                <input type="text" id="audio_title" class="form-input" placeholder="e.g. Around Me" />
               </div>
               <div class="form-group">
                 <label>ชื่อศิลปิน (Artist Name)</label>
-                <input type="text" id="audio_artist" class="form-input" placeholder="e.g. The Weeknd" />
+                <input type="text" id="audio_artist" class="form-input" placeholder="e.g. Noodah05" />
               </div>
             </div>
 
-            <div class="form-grid-2" style="margin-top:1rem;">
-              <div class="form-group">
-                <label>หรือไฟล์เสียงตรง (Direct MP3 Fallback)</label>
-                <input type="file" id="upload_audio_file" accept="audio/*" class="form-input" style="padding:0.5rem;" />
-                <input type="text" id="audio_src" class="form-input" style="margin-top:0.5rem;" placeholder="หรือวางลิงก์ตรงไฟล์ .mp3" />
-              </div>
-
-              <div class="form-group">
-                <label>รูปภาพปกอัลบั้ม (Cover Artwork)</label>
-                <div style="display:flex;gap:1rem;align-items:center;">
-                  <div class="upload-preview-box" style="width:60px;height:60px;margin:0;">
-                    <img id="preview_audioCover" src="" alt="Cover" />
-                  </div>
-                  <div style="flex:1;">
-                    <input type="file" id="upload_cover_file" accept="image/*" class="form-input" style="padding:0.4rem;" />
-                    <input type="text" id="audio_cover" class="form-input" style="margin-top:0.4rem;" placeholder="หรือวาง URL รูปปก (เว้นว่างเพื่อใช้ปก YouTube)" />
-                  </div>
+            <!-- Optional Cover Artwork -->
+            <div class="form-group" style="margin-top:1.25rem;">
+              <label>รูปภาพปกเพลง (Cover Artwork - ตัวเลือก ถ้าเว้นว่างไว้หน้าเว็บจะไม่แสดงรูปปก)</label>
+              <div style="display:flex;gap:1.25rem;align-items:center;">
+                <div class="upload-preview-box" style="width:65px;height:65px;margin:0;border-radius:6px;border:1px solid rgba(255,255,255,0.15);">
+                  <img id="preview_audioCover" src="" alt="Cover" onerror="this.style.display='none';" />
+                </div>
+                <div style="flex:1;">
+                  <input type="file" id="upload_cover_file" accept="image/*" class="form-input" style="padding:0.4rem;" />
+                  <input type="text" id="audio_cover" class="form-input" style="margin-top:0.4rem;" placeholder="วาง URL รูปภาพ หรือเว้นว่างไว้หากไม่ต้องการให้แสดงรูปปก" />
                 </div>
               </div>
             </div>

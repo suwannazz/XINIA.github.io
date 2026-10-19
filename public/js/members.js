@@ -99,7 +99,7 @@ function applyConfigToMembersPage(config) {
       title: audio.title || 'Gang Theme',
       artist: audio.artist || 'Audio Stream',
       src: resolveAssetUrl(audio.src || '/uploads/music.mp3'),
-      cover: resolveAssetUrl(audio.cover || theme.logoImage || '/uploads/logo.png'),
+      cover: audio.cover ? resolveAssetUrl(audio.cover) : '',
       sfxEnabled: audio.sfxEnabled !== false
     });
   } else if (window.audioPlayer && shouldPlayMusic && !window.audioPlayer.isPlaying) {
