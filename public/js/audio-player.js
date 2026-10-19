@@ -243,10 +243,21 @@ class GangAudioPlayer {
 
     if (end > 0 && end > start) {
       this.loopInterval = setInterval(() => {
-        if (this.ytPlayer && typeof this.ytPlayer.getCurrentTime === 'function') {
+        if (this.options.type === 'youtube' && this.ytPlayer && typeof this.ytPlayer.getCurrentTime === 'function') {
           const currentTime = this.ytPlayer.getCurrentTime();
           if (currentTime >= end) {
             this.ytPlayer.seekTo(start, true);
+          }
+        } else if (this.htmlAudio) {
+          const currentTime = this.htmlAudio.currentTime;
+          if (currentTime >= end) {
+            if (this.options.loop) {
+              this.htmlAudio.currentTime = start;
+            } else {
+              this.htmlAudio.pause();
+              this.htmlAudio.currentTime = start;
+              this.setPlayingState(false);
+            }
           }
         }
       }, 250);
@@ -264,29 +275,49 @@ class GangAudioPlayer {
   initHtmlAudio() {
     this.htmlAudio = new Audio();
     this.htmlAudio.src = this.options.src;
-    this.htmlAudio.loop = this.options.loop;
+    this.htmlAudio.loop = false; // Handled programmatically so it loops back to startTime!
     this.htmlAudio.volume = this.options.volume;
 
     const start = this.parseTime(this.options.startTime);
-    this.htmlAudio.currentTime = start;
-    this.updateProgressUI(start, 0);
+
+    const applyStartTime = () => {
+      if (start > 0 && Math.abs(this.htmlAudio.currentTime - start) > 1) {
+        try {
+          this.htmlAudio.currentTime = start;
+          this.initialSeekDone = true;
+        } catch (e) {}
+      }
+      this.updateProgressUI(start, this.htmlAudio.duration || 0);
+    };
+
+    this.htmlAudio.addEventListener('loadedmetadata', applyStartTime, { once: true });
+    this.htmlAudio.addEventListener('canplay', () => {
+      if (!this.initialSeekDone && start > 0) {
+        applyStartTime();
+      }
+    }, { once: true });
 
     this.htmlAudio.addEventListener('play', () => {
       this.setPlayingState(true);
+      this.startLoopMonitor();
       this.startProgressMonitor();
     });
 
     this.htmlAudio.addEventListener('pause', () => {
       this.setPlayingState(false);
+      this.stopLoopMonitor();
       this.stopProgressMonitor();
     });
 
     this.htmlAudio.addEventListener('ended', () => {
       if (this.options.loop) {
-        this.htmlAudio.currentTime = start;
-        this.htmlAudio.play();
+        try {
+          this.htmlAudio.currentTime = start;
+          this.htmlAudio.play().catch(() => {});
+        } catch (e) {}
       } else {
         this.setPlayingState(false);
+        this.stopLoopMonitor();
         this.stopProgressMonitor();
       }
     });
@@ -320,13 +351,17 @@ class GangAudioPlayer {
     } else if (this.htmlAudio) {
       const start = this.parseTime(this.options.startTime);
       if (!this.initialSeekDone && start > 0) {
-        this.htmlAudio.currentTime = start;
-        this.initialSeekDone = true;
+        try {
+          this.htmlAudio.currentTime = start;
+          this.initialSeekDone = true;
+        } catch (e) {}
       }
       this.htmlAudio.muted = false;
       this.htmlAudio.volume = this.options.volume;
       this.htmlAudio.play().then(() => {
         this.setPlayingState(true);
+        this.startLoopMonitor();
+        this.startProgressMonitor();
       }).catch(() => {});
     }
   }
@@ -340,6 +375,7 @@ class GangAudioPlayer {
     } else if (this.htmlAudio) {
       this.htmlAudio.pause();
       this.setPlayingState(false);
+      this.stopLoopMonitor();
     }
   }
 
@@ -357,12 +393,15 @@ class GangAudioPlayer {
       } catch (e) {}
     } else if (this.htmlAudio) {
       this.htmlAudio.pause();
-      this.htmlAudio.currentTime = start;
+      try {
+        this.htmlAudio.currentTime = start;
+      } catch (e) {}
     }
     this.initialSeekDone = false;
     this.setPlayingState(false);
+    this.stopLoopMonitor();
     this.stopProgressMonitor();
-    this.updateProgressUI(start, 0);
+    this.updateProgressUI(start, this.htmlAudio ? this.htmlAudio.duration || 0 : 0);
   }
 
   toggle() {
@@ -477,6 +516,17 @@ class GangAudioPlayer {
       } else if (this.htmlAudio) {
         current = this.htmlAudio.currentTime || 0;
         duration = this.htmlAudio.duration || 0;
+
+        const start = this.parseTime(this.options.startTime);
+        if (!this.initialSeekDone && start > 0 && current > 0) {
+          if (current < start - 1.5) {
+            try {
+              this.htmlAudio.currentTime = start;
+            } catch (e) {}
+          } else {
+            this.initialSeekDone = true;
+          }
+        }
       }
 
       this.updateProgressUI(current, duration);
@@ -655,6 +705,29 @@ class GangAudioPlayer {
       stopBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         this.stop();
+      });
+    }
+
+    // Seekable Progress Track
+    const progressTrack = document.getElementById('audio-progress-track');
+    if (progressTrack) {
+      progressTrack.style.cursor = 'pointer';
+      progressTrack.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const rect = progressTrack.getBoundingClientRect();
+        if (rect.width <= 0) return;
+        const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+
+        if (this.options.type === 'youtube' && this.ytPlayer && typeof this.ytPlayer.getDuration === 'function') {
+          const duration = this.ytPlayer.getDuration() || 0;
+          if (duration > 0) this.ytPlayer.seekTo(pos * duration, true);
+        } else if (this.htmlAudio && this.htmlAudio.duration) {
+          const duration = this.htmlAudio.duration || 0;
+          if (duration > 0) {
+            this.htmlAudio.currentTime = pos * duration;
+            this.updateProgressUI(this.htmlAudio.currentTime, duration);
+          }
+        }
       });
     }
 

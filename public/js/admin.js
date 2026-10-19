@@ -404,6 +404,8 @@ function populateFormWithConfig(cfg) {
   setSlider('audio_volume', audio.volume ?? 0.35);
   setValue('audio_title', audio.title || '');
   setValue('audio_artist', audio.artist || '');
+  setValue('audio_startTime', audio.startTime ?? '0');
+  setValue('audio_endTime', audio.endTime ?? '');
   setValue('audio_src', audio.src || '');
   setValue('audio_cover', audio.cover || '');
   setPreview('preview_audioCover', audio.cover);
@@ -497,8 +499,8 @@ async function saveAllConfig() {
       autoPlay: getCheck('audio_autoPlay', currentAudio.autoPlay),
       type: 'mp3',
       youtubeUrl: '',
-      startTime: '0',
-      endTime: '0',
+      startTime: getVal('audio_startTime', currentAudio.startTime || '0'),
+      endTime: getVal('audio_endTime', currentAudio.endTime || '0'),
       loop: getCheck('audio_loop', currentAudio.loop),
       sfxEnabled: getCheck('audio_sfxEnabled', currentAudio.sfxEnabled),
       volume: getNum('audio_volume', currentAudio.volume ?? 0.35),
@@ -1297,6 +1299,22 @@ async function fetchYouTubeInfo(url, isManual = false) {
   }
 }
 
+function parseAudioTime(val) {
+  if (typeof val === 'number') return Math.max(0, val);
+  if (!val) return 0;
+  const str = String(val).trim().toLowerCase();
+  if (!str) return 0;
+  if (str.includes(':')) {
+    const parts = str.split(':');
+    if (parts.length === 2) {
+      return (parseInt(parts[0], 10) || 0) * 60 + (parseFloat(parts[1]) || 0);
+    } else if (parts.length === 3) {
+      return (parseInt(parts[0], 10) || 0) * 3600 + (parseInt(parts[1], 10) || 0) * 60 + (parseFloat(parts[2]) || 0);
+    }
+  }
+  return parseFloat(str) || 0;
+}
+
 function setupAudioTestPlayer() {
   const btnTest = document.getElementById('btn-test-mp3-play');
   if (!btnTest) return;
@@ -1304,6 +1322,10 @@ function setupAudioTestPlayer() {
   btnTest.addEventListener('click', () => {
     const src = (document.getElementById('audio_src')?.value || '').trim();
     const volume = parseFloat(document.getElementById('audio_volume')?.value || '0.35');
+    const startStr = (document.getElementById('audio_startTime')?.value || '0').trim();
+    const endStr = (document.getElementById('audio_endTime')?.value || '').trim();
+    const startSec = parseAudioTime(startStr);
+    const endSec = parseAudioTime(endStr);
 
     if (!src) {
       showToast('กรุณาระบุไฟล์เพลงหรือ URL .mp3 ก่อนทดสอบฟัง', true);
@@ -1326,12 +1348,36 @@ function setupAudioTestPlayer() {
     try {
       adminTestAudioPlayer = new Audio(src);
       adminTestAudioPlayer.volume = isNaN(volume) ? 0.35 : Math.max(0, Math.min(1, volume));
+
+      const applySeek = () => {
+        if (startSec > 0 && adminTestAudioPlayer) {
+          try {
+            adminTestAudioPlayer.currentTime = startSec;
+          } catch (e) {}
+        }
+      };
+
+      adminTestAudioPlayer.addEventListener('loadedmetadata', applySeek, { once: true });
+
       adminTestAudioPlayer.play().then(() => {
+        applySeek();
         btnTest.textContent = '⏸ หยุดทดสอบฟัง';
-        showToast('กำลังเล่นเพลงทดสอบ...');
+        showToast(`กำลังเล่นเพลงทดสอบ (เริ่มท่อน: ${startStr || '0:00'})...`);
       }).catch(err => {
         showToast('ไม่สามารถเล่นไฟล์เสียงได้ กรุณาตรวจสอบลิงก์หรือไฟล์ .mp3', true);
       });
+
+      if (endSec > startSec) {
+        adminTestAudioPlayer.addEventListener('timeupdate', () => {
+          if (adminTestAudioPlayer && adminTestAudioPlayer.currentTime >= endSec) {
+            adminTestAudioPlayer.pause();
+            adminTestAudioPlayer = null;
+            btnTest.textContent = '▶ ทดสอบฟังเพลง (Test Play)';
+            showToast('เล่นถึงเวลาท่อนจบที่กำหนดแล้ว');
+          }
+        });
+      }
+
       adminTestAudioPlayer.addEventListener('ended', () => {
         btnTest.textContent = '▶ ทดสอบฟังเพลง (Test Play)';
         adminTestAudioPlayer = null;
