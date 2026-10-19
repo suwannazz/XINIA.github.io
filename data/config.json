@@ -1,0 +1,55 @@
+{
+  "gang": {
+    "name": "XINIA",
+    "tag": "XINIA",
+    "est": "Est. 2025",
+    "motto": "",
+    "serverIp": "",
+    "discordUrl": "",
+    "databaseTitle": "XINIA",
+    "description": "XINIA Gang Community - FiveM Roleplay",
+    "footerText": "System Design by Fongbeer Deedom",
+    "footerUrl": ""
+  },
+  "theme": {
+    "backgroundImage": "/uploads/bg.jpg",
+    "logoImage": "/uploads/logo.png",
+    "primaryColor": "#ffffff",
+    "accentColor": "#f59e0b",
+    "leaderColor": "#ef4444"
+  },
+  "threeD": {
+    "mode": "dynamic-2d",
+    "modelUrl": "",
+    "autoRotate": true,
+    "rotationSpeed": 0.008,
+    "floatingAnimation": true,
+    "floatSpeed": 1.5,
+    "floatHeight": 0.21,
+    "mouseFollow": true,
+    "mouseSensitivity": 1.5,
+    "lightColor": "#ffffff",
+    "lightIntensity": 1.8,
+    "metalness": 0.85,
+    "roughness": 0.25,
+    "scale": 1
+  },
+  "audio": {
+    "enabled": true,
+    "autoPlay": false,
+    "type": "youtube",
+    "youtubeUrl": "https://youtu.be/P0lBlxk_460?si=1UXkDJIGsBx3vuIa",
+    "startTime": "0.59",
+    "endTime": "0",
+    "loop": true,
+    "sfxEnabled": false,
+    "volume": 0.3,
+    "title": "Around Me",
+    "artist": "Noodah05",
+    "src": "https://pub-7827a1beaea74d1bb210e941351e7a23.r2.dev/mali-theme.mp3",
+    "cover": "https://img.youtube.com/vi/P0lBlxk_460/mqdefault.jpg"
+  },
+  "security": {
+    "adminPin": "admin123"
+  }
+}

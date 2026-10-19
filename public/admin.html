@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ระบบหลังบ้าน | GANG ADMIN PANEL</title>
+  <link rel="icon" href="/uploads/logo.png" type="image/png">
+
+  <!-- Three.js & GLTFLoader CDN for Admin 3D Preview -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+  <!-- Admin Stylesheet -->
+  <link rel="stylesheet" href="/css/admin.css?v=4.1">
+</head>
+<body>
+
+  <!-- ================= LOGIN SCREEN ================= -->
+  <div class="login-screen" id="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <img src="/uploads/logo.png" id="login-gang-logo" alt="Logo" onerror="this.src='/uploads/logo.png';" />
+      </div>
+      <h1 class="login-title">ADMIN CONTROL</h1>
+      <p class="login-subtitle">ระบบจัดการเว็บไซต์แก๊ง FIVEM (Role-Based Access)</p>
+
+      <div class="login-input-group">
+        <label for="login-username-input">ชื่อผู้ใช้ (Username)</label>
+        <input type="text" id="login-username-input" class="login-input" placeholder="admin / leader / member" autofocus autocomplete="username" />
+      </div>
+
+      <div class="login-input-group" style="margin-top:0.75rem;">
+        <label for="login-password-input">รหัสผ่าน (Password)</label>
+        <input type="password" id="login-password-input" class="login-input" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+
+      <button class="btn-login" id="btn-login-submit" style="margin-top:1.25rem;">เข้าสู่ระบบ (ACCESS PORTAL)</button>
+    </div>
+  </div>
+
+  <!-- ================= ADMIN APPLICATION ================= -->
+  <div class="admin-layout" id="admin-app" style="display:none;">
+
+    <!-- Mobile Off-Canvas Drawer Backdrop -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <!-- Mobile Top Navigation App Bar (Visible on mobile <= 768px) -->
+    <header class="mobile-top-bar" id="mobile-top-bar">
+      <div class="mobile-top-main">
+        <div class="mobile-left">
+          <button class="btn-mobile-drawer-toggle" id="btn-toggle-sidebar" aria-label="Open Navigation Menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+          <div class="mobile-brand">
+            <img src="/uploads/logo.png" id="mobile-gang-logo" alt="Logo" onerror="this.src='/uploads/logo.png';" />
+            <span id="mobile-gang-name">JAGUARX</span>
+          </div>
+        </div>
+        <div class="mobile-right">
+          <span class="mobile-role-pill" id="mobile-user-role">FOUNDER</span>
+          <button class="btn-mobile-save" id="btn-mobile-save" title="บันทึกการตั้งค่า">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            <span>บันทึก</span>
+          </button>
+        </div>
+      </div>
+      <!-- Mobile Quick Horizontal Tabs -->
+      <nav class="mobile-quick-nav" id="mobile-quick-nav">
+        <button class="mobile-tab-btn active" data-tab="tab-gang" data-roles="Founder,Leader">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span>ข้อมูลแก๊ง & คำขวัญ</span>
+        </button>
+        <button class="mobile-tab-btn" data-tab="tab-members" data-roles="Founder,Leader">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+          <span>สมาชิก</span>
+        </button>
+        <button class="mobile-tab-btn" data-tab="tab-3d" data-roles="Founder,Leader">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+          <span>โลโก้ 3D</span>
+        </button>
+        <button class="mobile-tab-btn" data-tab="tab-audio" data-roles="Founder,Leader">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+          <span>เพลง</span>
+        </button>
+        <button class="mobile-tab-btn" data-tab="tab-security" data-roles="Founder,Leader">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span>PIN</span>
+        </button>
+        <button class="mobile-tab-btn" data-tab="tab-my-profile" data-roles="Founder,Leader,Member">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span>โปรไฟล์ฉัน</span>
+        </button>
+      </nav>
+    </header>
+
+    <!-- Left Sidebar (Desktop Static / Mobile Off-Canvas Drawer) -->
+    <aside class="admin-sidebar" id="admin-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="/uploads/logo.png" id="sidebar-gang-logo" alt="Gang Logo" />
+        </div>
+        <div class="sidebar-info">
+          <h2 id="sidebar-gang-name">JAGUARX</h2>
+          <span id="sidebar-portal-tag">COMMAND SYSTEM</span>
+        </div>
+        <button class="btn-close-sidebar" id="btn-close-sidebar" aria-label="Close Menu">✕</button>
+      </div>
+
+      <!-- Logged In User Profile Card -->
+      <div class="sidebar-user-card" id="sidebar-user-card" style="padding:0.85rem 1rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;margin:0 1rem 1rem;display:flex;align-items:center;gap:0.75rem;">
+        <img id="admin-user-avatar" src="/uploads/logo.png" style="width:38px;height:38px;border-radius:50%;border:2px solid var(--cyber-cyan);object-fit:cover;" alt="User Avatar" onerror="this.src='/uploads/logo.png';" />
+        <div style="flex:1;min-width:0;">
+          <div id="admin-user-fullname" style="font-family:var(--font-hud);font-size:0.85rem;font-weight:700;color:#ffffff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Wendy Gracilia</div>
+          <span class="admin-role-pill" id="admin-user-role-badge" style="display:inline-block;padding:0.1rem 0.45rem;border-radius:3px;font-family:var(--font-tech);font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.4);">FOUNDER</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-tab="tab-gang" data-roles="Founder,Leader">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span>ข้อมูลแก๊ง & คำขวัญ (Gang Info)</span>
+        </a>
+        <a class="nav-item" data-tab="tab-members" data-roles="Founder,Leader">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <span>จัดการสมาชิก (Members)</span>
+        </a>
+        <a class="nav-item" data-tab="tab-3d" data-roles="Founder,Leader">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+          <span>โลโก้ 3D (Three.js)</span>
+        </a>
+        <a class="nav-item" data-tab="tab-audio" data-roles="Founder,Leader">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+          <span>ระบบเพลง (Music Player)</span>
+        </a>
+        <a class="nav-item" data-tab="tab-security" data-roles="Founder,Leader">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span>ความปลอดภัย (PIN)</span>
+        </a>
+        <a class="nav-item" data-tab="tab-my-profile" data-roles="Founder,Leader,Member">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span>โปรไฟล์ของฉัน & แคปชั่น</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="/" target="_blank" class="btn-sidebar-link btn-preview">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          <span>ดูหน้าเว็บจริง</span>
+        </a>
+        <button class="btn-sidebar-link btn-logout" id="btn-admin-logout">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <span>ออกจากระบบ</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-title-box">
+          <h1>แผงควบคุมระบบหลังบ้าน</h1>
+          <p>ปรับแต่งข้อมูลแก๊ง, โลโก้ 3 มิติ, รูปภาพพื้นหลัง และสมาชิกได้ทันที</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-save-master" id="btn-save-master">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            <span>บันทึกการตั้งค่า</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+
+        <!-- ================= TAB 1: GANG BRANDING & MOTTO ================= -->
+        <section class="tab-pane active" id="tab-gang">
+          <div class="admin-card">
+            <div class="card-title-bar">
+              <div>
+                <h2>🏛️ ข้อมูลพื้นฐานแก๊ง & คำขวัญ (Gang Branding & Identity)</h2>
+                <p>ปรับเปลี่ยนชื่อแก๊ง, คำคมคำขวัญหน้าแรก, สโลแกน, ปีก่อตั้ง และลิงก์ Discord</p>
+              </div>
+            </div>
+
+            <!-- Gang Name & Tagline -->
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label style="color:#fff;font-weight:600;">ชื่อแก๊ง (Gang Name)</label>
+                <input type="text" id="gang_name" class="form-input" placeholder="e.g. JAGUARX" style="font-weight:700;letter-spacing:0.05em;" />
+                <p style="font-size:0.75rem;color:#94a3b8;margin-top:0.35rem;">* แสดงเป็นหัวข้อใหญ่ที่หน้าหลักและแถบด้านบนของเว็บไซต์</p>
+              </div>
+              <div class="form-group">
+                <label style="color:#fff;font-weight:600;">แท็ก / สโลแกนสั้น (Tagline)</label>
+                <input type="text" id="gang_tag" class="form-input" placeholder="e.g. JAGUARX ONLY" />
+                <p style="font-size:0.75rem;color:#94a3b8;margin-top:0.35rem;">* แท็กย่อหรือข้อความสโลแกนกำกับ</p>
+              </div>
+            </div>
+
+            <!-- Highlighted Gang Motto (คำขวัญ / คำคม) -->
+            <div class="form-group highlight-box" style="background:rgba(0, 240, 255, 0.04);border:1px solid rgba(0, 240, 255, 0.25);padding:1rem 1.25rem;border-radius:10px;margin:0.5rem 0 1.25rem;">
+              <label style="color:#00f0ff;font-weight:700;display:flex;align-items:center;gap:0.5rem;font-size:0.9rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                💬 คำขวัญ / คำคมประจำแก๊ง (Gang Motto & Quote - แสดงที่หน้าแรก)
+              </label>
+              <input type="text" id="gang_motto" class="form-input" placeholder="e.g. RESPECT IS EARNED, NEVER GIVEN" style="border-color:rgba(0,240,255,0.3);font-size:0.95rem;margin-top:0.4rem;" />
+              <p style="font-size:0.75rem;color:#94a3b8;margin-top:0.4rem;margin-bottom:0;">* ข้อความคำคมนี้จะแสดงเป็นแถบแคปชั่นลอยเด่นอยู่เหนือชื่อแก๊งที่หน้าแรกของเว็บไซต์</p>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label>ปีก่อตั้ง (Established Year)</label>
+                <input type="text" id="gang_est" class="form-input" placeholder="e.g. Est. 2025" />
+              </div>
+              <div class="form-group">
+                <label>หัวข้อฐานข้อมูลสมาชิก (Database Header)</label>
+                <input type="text" id="gang_databaseTitle" class="form-input" placeholder="e.g. JAGUARX DATABASE" />
+              </div>
+            </div>
+
+            <div class="form-grid-2" style="margin-top:0.5rem;">
+              <div class="form-group">
+                <label>คำสั่งเชื่อมต่อเซิร์ฟเวอร์ (FiveM Connect IP)</label>
+                <input type="text" id="gang_serverIp" class="form-input" placeholder="connect cfx.re/join/xxxxxx" />
+              </div>
+              <div class="form-group">
+                <label>ลิงก์ Discord แก๊ง (Discord URL)</label>
+                <input type="text" id="gang_discordUrl" class="form-input" placeholder="https://discord.gg/..." />
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top:0.5rem;">
+              <label>คำอธิบายแก๊ง (Description)</label>
+              <textarea id="gang_description" class="form-textarea" placeholder="รายละเอียดแก๊ง FiveM" rows="3"></textarea>
+            </div>
+
+            <div class="form-grid-2" style="margin-top:0.5rem;">
+              <div class="form-group">
+                <label>ข้อความเครดิต Footer (Footer Text)</label>
+                <input type="text" id="gang_footerText" class="form-input" placeholder="e.g. System Design by Mali Cloud" />
+              </div>
+              <div class="form-group">
+                <label>ลิงก์เครดิต Footer (Footer URL)</label>
+                <input type="text" id="gang_footerUrl" class="form-input" placeholder="https://www.facebook.com/..." />
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-card">
+            <div class="card-title-bar">
+              <h2>🖼️ รูปภาพพื้นหลัง & โลโก้ (Background & Logo)</h2>
+              <p>สามารถกดอัปโหลดไฟล์ตรงจากเครื่อง หรือวาง URL รูปภาพได้ทันที</p>
+            </div>
+
+            <div class="form-grid-2">
+              <!-- Background Image -->
+              <div class="form-group">
+                <label>รูปพื้นหลังเว็บไซต์ (Background Image)</label>
+                <div class="upload-dropzone" onclick="document.getElementById('upload_bg_file').click()">
+                  <input type="file" id="upload_bg_file" accept="image/*" style="display:none;" />
+                  <div class="upload-preview-box">
+                    <img id="preview_backgroundImage" src="/uploads/bg.jpg" alt="Background Preview" />
+                  </div>
+                  <div class="upload-text">คลิกเพื่อ <strong>อัปโหลดรูปพื้นหลังใหม่</strong> (JPG, PNG)</div>
+                </div>
+                <input type="text" id="theme_backgroundImage" class="form-input" style="margin-top:0.75rem;" placeholder="/uploads/bg.jpg หรือ URL" />
+              </div>
+
+              <!-- Logo Image -->
+              <div class="form-group">
+                <label>รูปโลโก้แก๊ง (Logo Image)</label>
+                <div class="upload-dropzone" onclick="document.getElementById('upload_logo_file').click()">
+                  <input type="file" id="upload_logo_file" accept="image/*" style="display:none;" />
+                  <div class="upload-preview-box">
+                    <img id="preview_logoImage" src="/uploads/logo.png" alt="Logo Preview" />
+                  </div>
+                  <div class="upload-text">คลิกเพื่อ <strong>อัปโหลดรูปโลโก้ใหม่</strong> (PNG โปร่งใส)</div>
+                </div>
+                <input type="text" id="theme_logoImage" class="form-input" style="margin-top:0.75rem;" placeholder="/uploads/logo.png หรือ URL" />
+              </div>
+            </div>
+
+            <!-- Colors -->
+            <div class="form-grid-3" style="margin-top:1.5rem;">
+              <div class="form-group">
+                <label>สีหลักเว็บไซต์ (Primary Color)</label>
+                <input type="color" id="theme_primaryColor" class="form-input" style="height:45px;padding:0.25rem;" />
+              </div>
+              <div class="form-group">
+                <label>สีออราผู้ก่อตั้ง Founders (Accent Color)</label>
+                <input type="color" id="theme_accentColor" class="form-input" style="height:45px;padding:0.25rem;" />
+              </div>
+              <div class="form-group">
+                <label>สีออราหัวหน้า Leaders (Leader Color)</label>
+                <input type="color" id="theme_leaderColor" class="form-input" style="height:45px;padding:0.25rem;" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 2: 3D LOGO ================= -->
+        <section class="tab-pane" id="tab-3d">
+          <div class="admin-card">
+            <div class="card-title-bar">
+              <h2>💎 ปรับแต่งโลโก้ 3 มิติ (3D Logo Customizer)</h2>
+              <p>ระบบ Three.js คำนวณแสง เงา หมุนตามเมาส์ และรองรับทั้งไฟล์รูปภาพและโมเดล 3D (.glb)</p>
+            </div>
+
+            <!-- Mini 3D Preview in Admin -->
+            <div style="margin-bottom:1.5rem;">
+              <label style="display:block;font-family:var(--font-tech);font-size:0.75rem;font-weight:700;color:#cbd5e1;text-transform:uppercase;margin-bottom:0.5rem;">
+                🎮 ตัวอย่าง 3D แบบเรียลไทม์ (Live 3D Preview - ลองเลื่อนเมาส์หรือคลิกลากหมุนได้)
+              </label>
+              <div class="admin-3d-preview-box" id="admin-mini-3d"></div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label>โหมดการแสดงผลโลโก้ (Logo Display Mode)</label>
+                <select id="three_mode" class="form-select">
+                  <option value="dynamic-2d">โลโก้ 2D คมชัด มีมิติ ลอย แสงสะท้อนและขยับตามเมาส์ (Dynamic 2D Logo - แนะนำ)</option>
+                  <option value="model">โหลดโมเดล 3D แบบเต็ม (.GLB / .GLTF)</option>
+                  <option value="coin">เหรียญโลหะ 3 มิติ (3D Coin Emblem)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>อัปโหลดโมเดล 3D (.GLB File)</label>
+                <input type="file" id="upload_glb_file" accept=".glb,.gltf" class="form-input" style="padding:0.5rem;" />
+                <input type="text" id="three_modelUrl" class="form-input" style="margin-top:0.5rem;" placeholder="หรือวางลิงก์ไฟล์ .glb" />
+              </div>
+            </div>
+
+            <!-- Physics & Lighting Controls -->
+            <div class="form-grid-2" style="margin-top:1rem;">
+              <div class="form-group">
+                <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+                  <input type="checkbox" id="three_autoRotate" />
+                  <span>เปิดการหมุนอัตโนมัติ (Auto-Rotate)</span>
+                </label>
+                <div class="range-wrapper" style="margin-top:0.5rem;">
+                  <input type="range" id="three_rotationSpeed" class="range-slider" min="0.001" max="0.04" step="0.001" />
+                  <span class="range-val" id="three_rotationSpeed_val">0.008</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+                  <input type="checkbox" id="three_floatingAnimation" />
+                  <span>เปิดแอนิเมชันลอยขึ้นลง (Floating Bounce)</span>
+                </label>
+                <div class="range-wrapper" style="margin-top:0.5rem;">
+                  <input type="range" id="three_floatHeight" class="range-slider" min="0.05" max="0.5" step="0.02" />
+                  <span class="range-val" id="three_floatHeight_val">0.15</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;">
+                  <input type="checkbox" id="three_mouseFollow" />
+                  <span>เอียงตามเมาส์ (Mouse Follow Tilt)</span>
+                </label>
+                <div class="range-wrapper" style="margin-top:0.5rem;">
+                  <input type="range" id="three_mouseSensitivity" class="range-slider" min="0.5" max="3.0" step="0.1" />
+                  <span class="range-val" id="three_mouseSensitivity_val">1.5</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>ความเร็วการลอย (Float Speed)</label>
+                <div class="range-wrapper">
+                  <input type="range" id="three_floatSpeed" class="range-slider" min="0.5" max="3.0" step="0.1" />
+                  <span class="range-val" id="three_floatSpeed_val">1.5</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>ความมันวาวโลหะ (Metalness)</label>
+                <div class="range-wrapper">
+                  <input type="range" id="three_metalness" class="range-slider" min="0.1" max="1.0" step="0.05" />
+                  <span class="range-val" id="three_metalness_val">0.85</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>ความหยาบผิววัสดุ (Roughness)</label>
+                <div class="range-wrapper">
+                  <input type="range" id="three_roughness" class="range-slider" min="0.05" max="0.9" step="0.05" />
+                  <span class="range-val" id="three_roughness_val">0.25</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>สีแสงส่องกระทบ (Light Color)</label>
+                <input type="color" id="three_lightColor" class="form-input" style="height:45px;padding:0.25rem;" />
+              </div>
+
+              <div class="form-group">
+                <label>ความเข้มของแสง (Light Intensity)</label>
+                <div class="range-wrapper">
+                  <input type="range" id="three_lightIntensity" class="range-slider" min="0.5" max="4.0" step="0.1" />
+                  <span class="range-val" id="three_lightIntensity_val">1.8</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>ขนาดโมเดล 3D (Scale Size)</label>
+                <div class="range-wrapper">
+                  <input type="range" id="three_scale" class="range-slider" min="0.5" max="2.0" step="0.05" />
+                  <span class="range-val" id="three_scale_val">1.0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 3: MEMBERS ================= -->
+        <section class="tab-pane" id="tab-members">
+          <div class="admin-card">
+            <div class="card-title-bar">
+              <div>
+                <h2>👥 จัดการสมาชิกแก๊ง (Member Roster)</h2>
+                <p>เพิ่ม แก้ไข ลบสมาชิก จัดตำแหน่ง Founders, Leaders และ Members</p>
+              </div>
+              <button class="btn-save-master" id="btn-add-member" style="background:linear-gradient(135deg, #f59e0b, #d97706);color:#000;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>เพิ่มสมาชิกใหม่</span>
+              </button>
+            </div>
+
+            <!-- Table Filters -->
+            <div class="admin-member-controls">
+              <input type="text" id="admin-member-search" class="form-input member-search-input" placeholder="ค้นหาชื่อหรือตำแหน่ง..." />
+              <select id="admin-member-filter" class="form-select member-filter-select">
+                <option value="All">ทุกหมวดหมู่ (All)</option>
+                <option value="Founders">01 ผู้ก่อตั้ง (Founders)</option>
+                <option value="Leaders">02 หัวหน้า (Leaders)</option>
+                <option value="Members">03 สมาชิก (Members)</option>
+              </select>
+            </div>
+
+            <!-- Members Table -->
+            <div class="members-table-wrapper">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>รูปโปรไฟล์</th>
+                    <th>ชื่อ - นามสกุล</th>
+                    <th>ตำแหน่ง (Role)</th>
+                    <th>หมวดหมู่</th>
+                    <th>ช่องทางติดต่อ</th>
+                    <th style="text-align:right;">จัดการ</th>
+                  </tr>
+                </thead>
+                <tbody id="members-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 4: AUDIO ================= -->
+        <section class="tab-pane" id="tab-audio">
+          <div class="admin-card">
+            <div class="card-title-bar">
+              <h2>🎵 ระบบเครื่องเล่นเพลง (YouTube & Audio Engine)</h2>
+              <p>รองรับทั้งลิงก์ YouTube และไฟล์เสียง พร้อมเลือกท่อนเริ่มเพลง (Timestamp) และวนลูปท่อนฮิต</p>
+            </div>
+
+            <div class="form-grid-2" style="margin-bottom:1.5rem;">
+              <div class="form-group">
+                <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;">
+                  <input type="checkbox" id="audio_enabled" />
+                  <span style="font-size:0.95rem;color:#ffffff;font-weight:700;">เปิดใช้งานเครื่องเล่นเพลง (Enable Audio)</span>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;">
+                  <input type="checkbox" id="audio_autoPlay" />
+                  <span>เล่นเพลงอัตโนมัติเมื่อเปิดเว็บ (Autoplay)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- YouTube Audio Mode Settings -->
+            <div class="admin-card" style="background:rgba(0,0,0,0.3);border-color:rgba(0,240,255,0.2);margin-bottom:1.5rem;">
+              <div class="card-title-bar" style="margin-bottom:1rem;border-bottom:1px solid rgba(0,240,255,0.15);">
+                <h3 style="font-family:var(--font-tech);font-size:1rem;color:var(--admin-accent);">
+                  ▶️ เล่นเพลงผ่านลิงก์ YouTube (YouTube Stream Link)
+                </h3>
+              </div>
+
+              <div class="form-group">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+                  <label style="margin:0;">ลิงก์ YouTube (YouTube Video URL)</label>
+                  <span id="yt-fetch-status" style="font-size:0.75rem;color:#00f0ff;font-family:var(--font-tech);display:none;"></span>
+                </div>
+                <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+                  <input type="text" id="audio_youtubeUrl" class="form-input" style="flex:1;min-width:260px;" placeholder="https://www.youtube.com/watch?v=... หรือ https://youtu.be/..." />
+                  <button type="button" id="btn-fetch-yt" class="btn-action-fetch" style="background:linear-gradient(135deg, #00f0ff, #0284c7);color:#020617;font-weight:700;font-family:var(--font-tech);border:none;padding:0.6rem 1rem;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;font-size:0.8rem;white-space:nowrap;transition:all 0.2s;">
+                    ⚡ ดึงชื่อเพลง & ศิลปิน
+                  </button>
+                </div>
+                <p style="font-size:0.75rem;color:#64748b;margin-top:0.35rem;">* <strong>อัตโนมัติ:</strong> วางลิงก์ YouTube ระบบจะดึงชื่อเพลง ศิลปิน ปก และเวลาเริ่มท่อนเพลง (หากมีในลิงก์) ให้อัตโนมัติ</p>
+              </div>
+
+              <div class="form-grid-3" style="margin-top:1rem;">
+                <div class="form-group">
+                  <label>⏱️ เริ่มเล่นท่อนไหน (Start Timestamp)</label>
+                  <input type="text" id="audio_startTime" class="form-input" placeholder="เช่น 0:45 หรือ 45 (วินาที)" />
+                  <p style="font-size:0.7rem;color:#94a3b8;margin-top:0.25rem;">พิมพ์เป็น 0:45 หรือตัวเลขวินาที</p>
+                </div>
+
+                <div class="form-group">
+                  <label>⏱️ จบท่อนที่ (End Timestamp - ตัวเลือก)</label>
+                  <input type="text" id="audio_endTime" class="form-input" placeholder="เช่น 1:30 หรือ 90 (0 = เล่นจนจบ)" />
+                  <p style="font-size:0.7rem;color:#94a3b8;margin-top:0.25rem;">ปล่อยว่างหรือใส่ 0 เพื่อเล่นจนจบ</p>
+                </div>
+
+                <div class="form-group" style="display:flex;flex-direction:column;justify-content:center;">
+                  <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;margin-top:0.5rem;">
+                    <input type="checkbox" id="audio_loop" checked />
+                    <span style="font-size:0.85rem;color:#ffffff;font-weight:700;">วนลูปเฉพาะท่อนนี้ซ้ำ (Loop Section)</span>
+                  </label>
+                  <button type="button" class="hud-btn" id="btn-test-youtube-play" style="margin-top:0.75rem;background:rgba(0,240,255,0.15);border-color:#00f0ff;color:#00f0ff;">
+                    ▶ ทดสอบฟังท่อนนี้ (Test Playback)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Track Metadata -->
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label>ชื่อเพลง (Song Title)</label>
+                <input type="text" id="audio_title" class="form-input" placeholder="e.g. Come Through" />
+              </div>
+              <div class="form-group">
+                <label>ชื่อศิลปิน (Artist Name)</label>
+                <input type="text" id="audio_artist" class="form-input" placeholder="e.g. The Weeknd" />
+              </div>
+            </div>
+
+            <div class="form-grid-2" style="margin-top:1rem;">
+              <div class="form-group">
+                <label>หรือไฟล์เสียงตรง (Direct MP3 Fallback)</label>
+                <input type="file" id="upload_audio_file" accept="audio/*" class="form-input" style="padding:0.5rem;" />
+                <input type="text" id="audio_src" class="form-input" style="margin-top:0.5rem;" placeholder="หรือวางลิงก์ตรงไฟล์ .mp3" />
+              </div>
+
+              <div class="form-group">
+                <label>รูปภาพปกอัลบั้ม (Cover Artwork)</label>
+                <div style="display:flex;gap:1rem;align-items:center;">
+                  <div class="upload-preview-box" style="width:60px;height:60px;margin:0;">
+                    <img id="preview_audioCover" src="" alt="Cover" />
+                  </div>
+                  <div style="flex:1;">
+                    <input type="file" id="upload_cover_file" accept="image/*" class="form-input" style="padding:0.4rem;" />
+                    <input type="text" id="audio_cover" class="form-input" style="margin-top:0.4rem;" placeholder="หรือวาง URL รูปปก (เว้นว่างเพื่อใช้ปก YouTube)" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-grid-2" style="margin-top:1.5rem;">
+              <div class="form-group">
+                <label>ระดับเสียงเริ่มต้น (Default Volume)</label>
+                <div class="range-wrapper">
+                  <input type="range" id="audio_volume" class="range-slider" min="0.0" max="1.0" step="0.05" />
+                  <span class="range-val" id="audio_volume_val">0.35</span>
+                </div>
+              </div>
+
+              <div class="form-group" style="display:flex;align-items:center;">
+                <label style="display:flex;align-items:center;gap:0.75rem;cursor:pointer;margin-top:1.5rem;">
+                  <input type="checkbox" id="audio_sfxEnabled" checked />
+                  <span>เปิดเสียงเอฟเฟกต์ Cyber SFX เมื่อเลื่อนเมาส์/คลิก</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 5: SECURITY ================= -->
+        <section class="tab-pane" id="tab-security">
+          <div class="admin-card">
+            <div class="card-title-bar">
+              <h2>🔐 เปลี่ยนรหัส PIN ระบบหลังบ้าน</h2>
+              <p>เปลี่ยนรหัสสำหรับเข้าใช้งาน Admin Dashboard</p>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label>รหัส PIN ปัจจุบัน (Current PIN)</label>
+                <input type="password" id="sec_currentPin" class="form-input" placeholder="••••••••" />
+              </div>
+              <div class="form-group">
+                <label>รหัส PIN ใหม่ (New PIN)</label>
+                <input type="password" id="sec_newPin" class="form-input" placeholder="อย่างน้อย 4 ตัวอักษร" />
+              </div>
+            </div>
+
+            <button class="btn-save-master" id="btn-change-pin" style="margin-top:1rem;">
+              <span>ยืนยันเปลี่ยนรหัสผ่าน</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ================= TAB 7: MY PROFILE (Accessible by ALL ROLES) ================= -->
+        <section class="tab-pane" id="tab-my-profile">
+          <div class="admin-card">
+            <div class="card-title-bar">
+              <h2>👤 ข้อมูลโปรไฟล์ของฉัน & แคปชั่น (My Profile Dossier)</h2>
+              <p>แก้ไขข้อมูลส่วนตัว แคปชั่นประจำตัว และช่องทางติดต่อที่จะแสดงในหน้าเว็บ</p>
+            </div>
+
+            <input type="hidden" id="my_profile_id" />
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label>ชื่อ (First Name)</label>
+                <input type="text" id="my_profile_firstname" class="form-input" />
+              </div>
+              <div class="form-group">
+                <label>นามสกุล (Last Name)</label>
+                <input type="text" id="my_profile_lastname" class="form-input" />
+              </div>
+            </div>
+
+            <!-- Profile Avatar Upload -->
+            <div class="form-group" style="margin-top:1rem;">
+              <label>รูปภาพโปรไฟล์ (Profile Avatar)</label>
+              <div style="display:flex;gap:1.25rem;align-items:center;">
+                <div class="upload-preview-box" style="width:75px;height:75px;border-radius:50%;margin:0;border:2px solid var(--cyber-cyan);">
+                  <img id="my_profile_avatar_preview" src="/uploads/logo.png" alt="Avatar Preview" onerror="this.src='/uploads/logo.png';" />
+                </div>
+                <div style="flex:1;">
+                  <input type="file" id="my_profile_file" accept="image/*" class="form-input" style="padding:0.4rem;" />
+                  <input type="text" id="my_profile_image" class="form-input" style="margin-top:0.4rem;" placeholder="/uploads/logo.png หรือ URL รูปภาพ" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Personal Caption / Quote -->
+            <div class="form-group" style="margin-top:1rem;">
+              <label>💬 แคปชั่นส่วนตัว / ข้อความประจำตัว (Personal Quote - แสดงใน Popup หน้าเว็บ)</label>
+              <textarea id="my_profile_caption" class="form-textarea" rows="3" placeholder="พิมพ์แคปชั่นประจำตัว คำคม หรือข้อความทักทายที่จะแสดงเมื่อผู้เล่นกดที่รูปของคุณ..."></textarea>
+            </div>
+
+            <!-- Profile Banner Upload -->
+            <div class="form-group" style="margin-top:1rem;">
+              <label>🖼️ รูปภาพพื้นหลังโปรไฟล์ของฉัน (Personal Banner Wallpaper - สมาชิกตกแต่งพื้นหลังได้)</label>
+              <div style="display:flex;gap:1rem;align-items:center;">
+                <div class="upload-preview-box" style="width:100px;height:55px;border-radius:6px;margin:0;border:1px solid rgba(255,255,255,0.2);overflow:hidden;">
+                  <img id="my_profile_banner_preview" src="/uploads/bg.jpg" alt="Banner Preview" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='/uploads/bg.jpg';" />
+                </div>
+                <div style="flex:1;">
+                  <input type="file" id="my_profile_banner_file" accept="image/*" class="form-input" style="padding:0.4rem;" />
+                  <input type="text" id="my_profile_banner" class="form-input" style="margin-top:0.4rem;" placeholder="/uploads/bg.jpg หรือ URL รูปภาพพื้นหลัง" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Social Follow Channels for My Profile -->
+            <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:1.25rem;margin-top:1.25rem;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0.6rem;">
+                <span style="font-family:var(--font-hud);font-size:0.85rem;font-weight:700;color:#00f0ff;letter-spacing:0.1em;">
+                  🌐 ช่องทางการติดตามส่วนตัว (SOCIAL FOLLOW TAGS &amp; LINKS)
+                </span>
+                <span style="font-family:var(--font-tech);font-size:0.65rem;color:#94a3b8;">PASTE DIRECT LINKS</span>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label>🔵 ลิงก์ Facebook</label>
+                  <input type="text" id="my_profile_fb" class="form-input" placeholder="https://facebook.com/..." />
+                </div>
+                <div class="form-group">
+                  <label>🟣 ลิงก์ / Tag Discord</label>
+                  <input type="text" id="my_profile_discord" class="form-input" placeholder="https://discord.gg/... หรือ Username#0000" />
+                </div>
+              </div>
+
+              <div class="form-grid-2" style="margin-top:0.75rem;">
+                <div class="form-group">
+                  <label>📸 ลิงก์ Instagram (IG)</label>
+                  <input type="text" id="my_profile_ig" class="form-input" placeholder="https://instagram.com/..." />
+                </div>
+                <div class="form-group">
+                  <label>🎵 ลิงก์ TikTok</label>
+                  <input type="text" id="my_profile_tiktok" class="form-input" placeholder="https://tiktok.com/@..." />
+                </div>
+              </div>
+
+              <div class="form-grid-2" style="margin-top:0.75rem;">
+                <div class="form-group">
+                  <label>✖️ ลิงก์ Twitter / X</label>
+                  <input type="text" id="my_profile_twitter" class="form-input" placeholder="https://x.com/..." />
+                </div>
+                <div class="form-group">
+                  <label>🔴 ลิงก์ YouTube</label>
+                  <input type="text" id="my_profile_youtube" class="form-input" placeholder="https://youtube.com/@..." />
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top:0.75rem;">
+                <label>👾 ลิงก์ Twitch</label>
+                <input type="text" id="my_profile_twitch" class="form-input" placeholder="https://twitch.tv/..." />
+              </div>
+            </div>
+
+            <!-- Change Own Password -->
+            <div class="form-card-sub" style="margin-top:1.5rem;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);padding:1rem;border-radius:8px;">
+              <h4 style="font-family:var(--font-tech);color:#00f0ff;font-size:0.9rem;margin-bottom:0.75rem;">🔑 เปลี่ยนรหัสผ่านของบัญชีนี้ (Change My Password)</h4>
+              <div class="form-group">
+                <label>รหัสผ่านใหม่ (ปล่อยว่างถ้าไม่ต้องการเปลี่ยน)</label>
+                <input type="password" id="my_profile_new_password" class="form-input" placeholder="กรอกรหัสผ่านใหม่..." />
+              </div>
+            </div>
+
+            <button class="btn-save-master" id="btn-save-my-profile" style="margin-top:1.5rem;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+              <span>บันทึกข้อมูลโปรไฟล์ของฉัน</span>
+            </button>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Floating Action Save Button (Mobile Quick Save) -->
+    <button class="mobile-fab-save" id="btn-mobile-fab-save" title="บันทึกการตั้งค่า">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+        <polyline points="7 3 7 8 15 8"></polyline>
+      </svg>
+      <span>บันทึกการตั้งค่า</span>
+    </button>
+  </div>
+
+  <!-- ================= ADD / EDIT MEMBER MODAL ================= -->
+  <div class="modal-overlay" id="member-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-member-title">เพิ่มสมาชิกใหม่</h3>
+        <button class="btn-modal-close" id="btn-close-member-modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <input type="hidden" id="modal-member-id" />
+
+      <!-- Login Credentials Group -->
+      <div style="background:rgba(0,240,255,0.05);border:1px solid rgba(0,240,255,0.2);border-radius:6px;padding:0.85rem;margin-bottom:1rem;">
+        <span style="font-family:var(--font-hud);font-size:0.75rem;font-weight:700;color:#00f0ff;letter-spacing:0.1em;display:block;margin-bottom:0.5rem;">
+          🔐 บัญชีเข้าสู่ระบบหลังบ้าน (ADMIN LOGIN CREDENTIALS)
+        </span>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Username (เข้าสู่ระบบ)</label>
+            <input type="text" id="modal_member_username" class="form-input" placeholder="e.g. wendy, alex, john" />
+          </div>
+          <div class="form-group">
+            <label>Password (รหัสผ่าน)</label>
+            <input type="password" id="modal_member_password" class="form-input" placeholder="กำหนดรหัสผ่าน (default: 123456)" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>ชื่อ (First Name) *</label>
+          <input type="text" id="modal_member_firstname" class="form-input" placeholder="e.g. John" required />
+        </div>
+        <div class="form-group">
+          <label>นามสกุล (Last Name)</label>
+          <input type="text" id="modal_member_lastname" class="form-input" placeholder="e.g. Wick" />
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label>หมวดหมู่ (Category)</label>
+          <select id="modal_member_category" class="form-select">
+            <option value="Founders">01 ผู้ก่อตั้ง (Founders)</option>
+            <option value="Leaders">02 หัวหน้า (Leaders)</option>
+            <option value="Members">03 สมาชิกทั่วไป (Members)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ชื่อตำแหน่ง (Role Title)</label>
+          <input type="text" id="modal_member_role" class="form-input" placeholder="e.g. Founder, Underboss, Enforcer..." />
+        </div>
+      </div>
+
+      <!-- Member Caption / Quote -->
+      <div class="form-group">
+        <label>💬 แคปชั่นประจำตัว (Personal Caption - แสดงใน Popup หน้าเว็บ)</label>
+        <textarea id="modal_member_caption" class="form-textarea" rows="2" placeholder="คำคม แคปชั่น หรือประวัติสั้นๆ ประจำตัวสมาชิก..."></textarea>
+      </div>
+
+      <!-- Avatar Upload -->
+      <div class="form-group">
+        <label>รูปภาพโปรไฟล์ (Avatar)</label>
+        <div style="display:flex;gap:1rem;align-items:center;">
+          <div class="upload-preview-box" style="width:60px;height:60px;border-radius:50%;margin:0;">
+            <img id="modal_avatar_preview" src="/uploads/logo.png" alt="Avatar" />
+          </div>
+          <div style="flex:1;">
+            <input type="file" id="modal_member_file" accept="image/*" class="form-input" style="padding:0.4rem;" />
+            <input type="text" id="modal_member_image" class="form-input" style="margin-top:0.4rem;" placeholder="/uploads/logo.png หรือ URL รูปภาพ" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Custom Banner Upload -->
+      <div class="form-group" style="margin-top:1rem;">
+        <label>🖼️ รูปภาพพื้นหลังโปรไฟล์ส่วนตัว (Personal Banner Wallpaper - สมาชิกตกแต่งพื้นหลังได้)</label>
+        <div style="display:flex;gap:1rem;align-items:center;">
+          <div class="upload-preview-box" style="width:100px;height:55px;border-radius:6px;margin:0;border:1px solid rgba(255,255,255,0.2);overflow:hidden;">
+            <img id="modal_banner_preview" src="/uploads/bg.jpg" alt="Banner" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='/uploads/bg.jpg';" />
+          </div>
+          <div style="flex:1;">
+            <input type="file" id="modal_member_banner_file" accept="image/*" class="form-input" style="padding:0.4rem;" />
+            <input type="text" id="modal_member_banner" class="form-input" style="margin-top:0.4rem;" placeholder="/uploads/bg.jpg หรือ URL รูปภาพพื้นหลัง" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Social Follow Channels for Member -->
+      <div style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:1.25rem;margin-top:1.25rem;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:0.6rem;">
+          <span style="font-family:var(--font-hud);font-size:0.85rem;font-weight:700;color:#00f0ff;letter-spacing:0.1em;">
+            🌐 ช่องทางการติดตามสมาชิก (SOCIAL FOLLOW TAGS &amp; LINKS)
+          </span>
+          <span style="font-family:var(--font-tech);font-size:0.65rem;color:#94a3b8;">PASTE DIRECT LINKS</span>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>🔵 ลิงก์ Facebook</label>
+            <input type="text" id="modal_member_fb" class="form-input" placeholder="https://facebook.com/..." />
+          </div>
+          <div class="form-group">
+            <label>🟣 ลิงก์ / Tag Discord</label>
+            <input type="text" id="modal_member_discord" class="form-input" placeholder="https://discord.gg/... หรือ Username#0000" />
+          </div>
+        </div>
+
+        <div class="form-grid-2" style="margin-top:0.75rem;">
+          <div class="form-group">
+            <label>📸 ลิงก์ Instagram (IG)</label>
+            <input type="text" id="modal_member_ig" class="form-input" placeholder="https://instagram.com/..." />
+          </div>
+          <div class="form-group">
+            <label>🎵 ลิงก์ TikTok</label>
+            <input type="text" id="modal_member_tiktok" class="form-input" placeholder="https://tiktok.com/@..." />
+          </div>
+        </div>
+
+        <div class="form-grid-2" style="margin-top:0.75rem;">
+          <div class="form-group">
+            <label>✖️ ลิงก์ Twitter / X</label>
+            <input type="text" id="modal_member_twitter" class="form-input" placeholder="https://x.com/..." />
+          </div>
+          <div class="form-group">
+            <label>🔴 ลิงก์ YouTube</label>
+            <input type="text" id="modal_member_youtube" class="form-input" placeholder="https://youtube.com/@..." />
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:0.75rem;">
+          <label>👾 ลิงก์ Twitch</label>
+          <input type="text" id="modal_member_twitch" class="form-input" placeholder="https://twitch.tv/..." />
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:0.5rem;">
+        <label style="display:flex;align-items:center;gap:0.6rem;cursor:pointer;">
+          <input type="checkbox" id="modal_member_gangOnly" checked />
+          <span style="font-size:0.85rem;color:#cbd5e1;">ติ๊กถูกเพื่อแสดงในแท็ก Gang Verified (JAGUARX ONLY)</span>
+        </label>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:1rem;margin-top:1.5rem;border-top:1px solid rgba(255,255,255,0.08);padding-top:1rem;">
+        <button class="btn-save-master" id="btn-save-member">บันทึกข้อมูลสมาชิก</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script src="/js/three-logo.js"></script>
+  <script src="/js/audio-player.js"></script>
+  <script src="/js/admin.js?v=4.0"></script>
+
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <title>XINIA // OPERATIVES DATABASE</title>
+  <meta name="description" content="XINIA Gang Community - FiveM Roleplay">
+
+  <!-- Open Graph / Discord / Facebook / Line Embeds -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="XINIA">
+  <meta property="og:title" content="XINIA // OPERATIVES DATABASE">
+  <meta property="og:description" content="XINIA Gang Community - FiveM Roleplay">
+  <meta property="og:image" content="https://localhost:3000/uploads/logo.png">
+  <meta property="og:url" content="https://localhost:3000">
+  <meta name="theme-color" content="#f59e0b">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="XINIA // OPERATIVES DATABASE">
+  <meta name="twitter:description" content="XINIA Gang Community - FiveM Roleplay">
+  <meta name="twitter:image" content="https://localhost:3000/uploads/logo.png">
+
+  
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <link rel="icon" href="/uploads/logo.png" type="image/png">
+  
+
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+
+  <!-- YouTube IFrame API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="/css/style.css?v=4.3">
+</head>
+<body>
+
+  <!-- Dynamic Background Wrapper -->
+  <div class="site-bg-wrapper" id="site-bg" style="background-image: url('/uploads/bg.jpg');">
+    <div class="site-bg-overlay"></div>
+    <div class="site-bg-tech-grid"></div>
+  </div>
+
+  <div class="site-scanlines"></div>
+
+  <!-- Top Tactical HUD -->
+  <header class="top-hud-bar">
+    <div class="hud-left">
+      <a href="index.html" class="hud-btn">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="m15 18-6-6 6-6" />
+        </svg>
+        <span>RETURN TO BASE</span>
+      </a>
+      <span class="hud-tag" id="database-sec-level">SECURITY LEVEL: TOP SECRET</span>
+    </div>
+
+    <div class="hud-center">
+      <span class="bracket">[</span>
+      <span id="members-hud-gang">OPERATIVES DATABASE</span>
+      <span class="bracket">]</span>
+    </div>
+
+    <div class="hud-right">
+      <a href="admin.html" class="hud-btn hud-btn-admin">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span>MANAGE</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Operatives Container -->
+  <main class="operatives-container">
+    <header class="operatives-header">
+      <h1 id="operatives-main-title">INTELLIGENCE DOSSIER</h1>
+      <div class="operatives-meta-bar">
+        <span>GANG ARCHIVE PROTOCOL</span>
+        <span class="dot"></span>
+        <span id="operatives-total-count">TOTAL ROSTER: --</span>
+        <span class="dot"></span>
+        <span>VERIFIED ENCRYPTED DATA</span>
+      </div>
+    </header>
+
+    <!-- Control Deck -->
+    <div class="operatives-control-deck">
+      <!-- Search Input -->
+      <div class="deck-search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input type="text" id="deck-search-input" placeholder="SEARCH OPERATIVES..." autocomplete="off">
+        <button id="btn-clear-deck-search" style="background:none;border:none;color:#64748b;cursor:pointer;" title="Clear">✕</button>
+      </div>
+
+      <!-- Filter Pills -->
+      <div class="deck-filter-pills">
+        <button class="filter-pill active" data-category="All">ALL SQUADS</button>
+        <button class="filter-pill" data-category="Founders">01 FOUNDERS</button>
+        <button class="filter-pill" data-category="Leaders">02 LEADERS</button>
+        <button class="filter-pill" data-category="Members">03 OPERATIVES</button>
+      </div>
+    </div>
+
+    <!-- Content List -->
+    <div id="operatives-content-area"></div>
+
+    <!-- Pagination -->
+    <div id="operatives-pagination-area" style="margin-top:3rem;display:flex;justify-content:center;"></div>
+  </main>
+
+  <!-- ================= POPUP: MEMBER PERSONAL DOSSIER MODAL ================= -->
+  <dialog id="member-dossier-dialog" class="cyber-dossier-dialog" closedby="any">
+    <div class="dossier-modal-inner">
+      <!-- Member Custom Wallpaper Banner Header -->
+      <div class="dossier-banner-stage" id="dossier-banner-stage">
+        <img id="dossier-banner-img" src="/uploads/bg.jpg" alt="Profile Banner" onerror="this.src='/uploads/bg.jpg';" />
+        <div class="dossier-banner-overlay"></div>
+        <div class="dossier-banner-grid"></div>
+
+        <!-- Banner Tech HUD Bar (Close button) -->
+        <div class="dossier-banner-hud">
+          <button type="button" class="dossier-btn-close" id="btn-close-dossier" aria-label="Close" title="ปิดหน้าต่าง">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Dossier Body Container (Floats over Banner) -->
+      <div class="dossier-body-container">
+        <!-- Avatar & Main Info Bar (Floating Over Banner) -->
+        <div class="dossier-profile-header">
+          <div class="dossier-avatar-col">
+            <div class="dossier-avatar-frame" id="dossier-avatar-frame">
+              <img id="dossier-avatar-img" src="/uploads/logo.png" alt="Avatar" onerror="this.src='/uploads/logo.png';" />
+              <div class="dossier-avatar-glare"></div>
+              <div class="dossier-status-dot"></div>
+            </div>
+          </div>
+          <div class="dossier-identity-col">
+            <div class="dossier-role-row">
+              <div class="dossier-role-badge" id="dossier-role-badge">
+                <span id="dossier-role-text">FOUNDER</span>
+              </div>
+              <span class="dossier-category-pill" id="dossier-category-pill">RANK // VERIFIED</span>
+            </div>
+            <h2 class="dossier-fullname" id="dossier-fullname">OPERATIVE NAME</h2>
+            <div class="dossier-meta-sub">
+              <span class="dossier-username-badge" id="dossier-username-tag">@username</span>
+              <span class="dossier-security-badge" id="dossier-security-badge">SECURITY LEVEL: ALPHA</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Personal Caption / Quote -->
+        <div class="dossier-quote-box">
+          <div class="dossier-quote-mark">“</div>
+          <p class="dossier-quote-text" id="dossier-caption-text">
+            ไม่มีคำอธิบายส่วนตัวระบุไว้ในฐานข้อมูล
+          </p>
+        </div>
+
+        <!-- Social Comms / Links -->
+        <div class="dossier-socials-section">
+          <span class="dossier-socials-label">COMMS CHANNELS &amp; CONTACT:</span>
+          <div class="dossier-socials-list" id="dossier-socials-list"></div>
+        </div>
+      </div>
+
+      <!-- Bottom Tactical Footer -->
+      <div class="dossier-footer-bar">
+        <span>SECURITY ENCRYPTED RECORD</span>
+        <span class="dot"></span>
+        <span id="dossier-footer-gang-name">GANG ARCHIVE</span>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Floating Tactical Back to Top Radar Button -->
+  <button id="btn-back-to-top" class="btn-back-to-top" aria-label="Back to Top" title="กลับขึ้นด้านบน">
+    <svg class="progress-ring" width="52" height="52" viewBox="0 0 52 52">
+      <circle class="progress-ring-track" cx="26" cy="26" r="22" fill="none" stroke-width="2.5" />
+      <circle class="progress-ring-fill" id="back-to-top-progress" cx="26" cy="26" r="22" fill="none" stroke-width="2.5" />
+    </svg>
+    <div class="btn-back-to-top-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="m18 15-6-6-6 6"/>
+      </svg>
+    </div>
+  </button>
+
+  <!-- Scripts -->
+  <script src="/js/audio-player.js?v=4.3"></script>
+  <script src="/js/members.js?v=4.3"></script>
+
+</body>
+</html>

@@ -1,0 +1,78 @@
+[
+  {
+    "id": "preset-1792160586323",
+    "name": "xxx",
+    "description": "FiveM Roleplay Gang Template",
+    "config": {
+      "gang": {
+        "name": "XINIA",
+        "tag": "XINIA",
+        "est": "Est. 2025",
+        "motto": "",
+        "serverIp": "",
+        "discordUrl": "",
+        "databaseTitle": "XINIA",
+        "description": "XINIA Gang Community - FiveM Roleplay",
+        "footerText": "System Design by Fongbeer Deedom",
+        "footerUrl": ""
+      },
+      "theme": {
+        "backgroundImage": "/uploads/bg.jpg",
+        "logoImage": "/uploads/logo.png",
+        "primaryColor": "#ffffff",
+        "accentColor": "#f59e0b",
+        "leaderColor": "#ef4444"
+      },
+      "threeD": {
+        "mode": "dynamic-2d",
+        "modelUrl": "",
+        "autoRotate": true,
+        "rotationSpeed": 0.008,
+        "floatingAnimation": true,
+        "floatSpeed": 1.5,
+        "floatHeight": 0.21,
+        "mouseFollow": true,
+        "mouseSensitivity": 1.5,
+        "lightColor": "#ffffff",
+        "lightIntensity": 1.8,
+        "metalness": 0.85,
+        "roughness": 0.25,
+        "scale": 1
+      },
+      "audio": {
+        "enabled": true,
+        "autoPlay": false,
+        "type": "youtube",
+        "youtubeUrl": "https://youtu.be/P0lBlxk_460?si=1UXkDJIGsBx3vuIa",
+        "startTime": "0.59",
+        "endTime": "0",
+        "loop": true,
+        "sfxEnabled": true,
+        "volume": 0.3,
+        "title": "Come Through",
+        "artist": "The Weeknd",
+        "src": "https://pub-7827a1beaea74d1bb210e941351e7a23.r2.dev/mali-theme.mp3",
+        "cover": "https://img.youtube.com/vi/P0lBlxk_460/mqdefault.jpg"
+      }
+    },
+    "members": [
+      {
+        "id": "1",
+        "firstname": "Wendy",
+        "lastname": "Gracilia",
+        "username": "admin",
+        "password": "admin123",
+        "role": "Founder & Commander",
+        "category": "Founders",
+        "caption": "ผู้นำสูงสุดของ JAGUARX เคารพคือสิ่งที่ต้องสร้าง ไม่ใช่สิ่งที่ใครจะมอบให้ได้ง่ายๆ",
+        "imageurl": "/uploads/GTA5_2025-07-25_15-25-25-1792160504389-962399445.png",
+        "sociallinks": {
+          "facebook": "https://facebook.com",
+          "discord": "698822802748342273"
+        },
+        "isGangOnly": true,
+        "status": "online"
+      }
+    ]
+  }
+]
