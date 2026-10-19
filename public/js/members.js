@@ -28,75 +28,104 @@ if (document.readyState === 'loading') {
   initMembersPage();
 }
 
+function getAppBasePath() {
+  const p = window.location.pathname;
+  const idx = p.lastIndexOf('/');
+  if (idx >= 0) {
+    return p.substring(0, idx + 1);
+  }
+  return './';
+}
+
 function resolveAssetUrl(url) {
   if (!url) return '';
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
-  if (url.startsWith('/uploads/')) return '.' + url;
-  return url;
+  const base = getAppBasePath();
+  let cleanUrl = url;
+  if (cleanUrl.startsWith('./')) cleanUrl = cleanUrl.slice(2);
+  if (cleanUrl.startsWith('/')) {
+    if (base !== '/' && !cleanUrl.startsWith(base)) {
+      return base + cleanUrl.slice(1);
+    }
+    return cleanUrl;
+  }
+  return base + cleanUrl;
+}
+
+function applyConfigToMembersPage(config) {
+  const gang = config.gang || {};
+  const theme = config.theme || {};
+  const audio = config.audio || {};
+
+  if (gang.name) {
+    document.title = `${gang.name} // OPERATIVES DATABASE`;
+  }
+
+  const titleEl = document.getElementById('operatives-main-title');
+  if (titleEl && gang.databaseTitle) {
+    titleEl.textContent = gang.databaseTitle;
+  }
+
+  const hudGang = document.getElementById('members-hud-gang');
+  if (hudGang && gang.name) {
+    hudGang.textContent = `${gang.name} ARCHIVE`;
+  }
+
+  const footerGang = document.getElementById('dossier-footer-gang-name');
+  if (footerGang && gang.name) {
+    footerGang.textContent = `${gang.name} ARCHIVE`;
+  }
+
+  const bg = document.getElementById('site-bg');
+  const bgUrl = resolveAssetUrl(theme.backgroundImage || '/uploads/bg.jpg');
+  if (bg && bgUrl) {
+    bg.style.backgroundImage = `url('${bgUrl}')`;
+  }
+
+  // Audio Player: Auto-play if user initiated playback from hero action button
+  const shouldPlayMusic = sessionStorage.getItem('user_music_activated') === 'true' || 
+                          sessionStorage.getItem('play_music_on_load') === 'true';
+
+  if (window.GangAudioPlayer && audio.enabled !== false && !window.audioPlayer) {
+    window.audioPlayer = new window.GangAudioPlayer({
+      enabled: audio.enabled,
+      type: audio.type || (audio.youtubeUrl ? 'youtube' : 'mp3'),
+      youtubeUrl: audio.youtubeUrl || '',
+      startTime: audio.startTime ?? 0,
+      endTime: audio.endTime ?? 0,
+      loop: audio.loop !== false,
+      autoPlay: shouldPlayMusic,
+      volume: audio.volume ?? 0.35,
+      title: audio.title || 'Gang Theme',
+      artist: audio.artist || 'Audio Stream',
+      src: audio.src || '',
+      cover: resolveAssetUrl(audio.cover || theme.logoImage || '/uploads/logo.png'),
+      sfxEnabled: audio.sfxEnabled !== false
+    });
+  } else if (window.audioPlayer && shouldPlayMusic && !window.audioPlayer.isPlaying) {
+    window.audioPlayer.play();
+  }
 }
 
 async function loadPageConfig() {
   try {
+    if (window.__configCache && Object.keys(window.__configCache).length > 0) {
+      applyConfigToMembersPage(window.__configCache);
+      return;
+    }
+
     let res = await fetch('/api/config').catch(() => null);
     if (!res || !res.ok) {
-      res = await fetch('./data/config.json').catch(() => null);
+      const base = getAppBasePath();
+      const urls = [base + 'data/config.json', './data/config.json', 'data/config.json'];
+      for (const u of urls) {
+        res = await fetch(u).catch(() => null);
+        if (res && res.ok) break;
+      }
     }
-    if (!res || !res.ok) {
-      res = await fetch('data/config.json').catch(() => null);
-    }
-    const config = res ? await res.json() : {};
-    const gang = config.gang || {};
-    const theme = config.theme || {};
-    const audio = config.audio || {};
-
-    if (gang.name) {
-      document.title = `${gang.name} // OPERATIVES DATABASE`;
-    }
-
-    const titleEl = document.getElementById('operatives-main-title');
-    if (titleEl && gang.databaseTitle) {
-      titleEl.textContent = gang.databaseTitle;
-    }
-
-    const hudGang = document.getElementById('members-hud-gang');
-    if (hudGang && gang.name) {
-      hudGang.textContent = `${gang.name} ARCHIVE`;
-    }
-
-    const footerGang = document.getElementById('dossier-footer-gang-name');
-    if (footerGang && gang.name) {
-      footerGang.textContent = `${gang.name} ARCHIVE`;
-    }
-
-    const bg = document.getElementById('site-bg');
-    const bgUrl = resolveAssetUrl(theme.backgroundImage || '/uploads/bg.jpg');
-    if (bg && bgUrl) {
-      bg.style.backgroundImage = `url('${bgUrl}')`;
-    }
-
-    // Audio Player: Auto-play if user initiated playback from hero action button
-    const shouldPlayMusic = sessionStorage.getItem('user_music_activated') === 'true' || 
-                            sessionStorage.getItem('play_music_on_load') === 'true';
-
-    if (window.GangAudioPlayer && audio.enabled !== false && !window.audioPlayer) {
-      window.audioPlayer = new window.GangAudioPlayer({
-        enabled: audio.enabled,
-        type: audio.type || (audio.youtubeUrl ? 'youtube' : 'mp3'),
-        youtubeUrl: audio.youtubeUrl || '',
-        startTime: audio.startTime ?? 0,
-        endTime: audio.endTime ?? 0,
-        loop: audio.loop !== false,
-        autoPlay: shouldPlayMusic,
-        volume: audio.volume ?? 0.35,
-        title: audio.title || 'Gang Theme',
-        artist: audio.artist || 'Audio Stream',
-        src: audio.src || '',
-        cover: resolveAssetUrl(audio.cover || theme.logoImage || '/uploads/logo.png'),
-        sfxEnabled: audio.sfxEnabled !== false
-      });
-    } else if (window.audioPlayer && shouldPlayMusic && !window.audioPlayer.isPlaying) {
-      window.audioPlayer.play();
-    }
+    const config = res && res.ok ? await res.json() : {};
+    window.__configCache = config;
+    applyConfigToMembersPage(config);
   } catch (e) {
     console.error('Failed to load config on members page:', e);
   }
@@ -105,7 +134,8 @@ async function loadPageConfig() {
 function setupEvents() {
   // Search
   const searchInput = document.getElementById('deck-search-input');
-  if (searchInput) {
+  if (searchInput && !searchInput.dataset.bound) {
+    searchInput.dataset.bound = 'true';
     searchInput.addEventListener('input', (e) => {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
@@ -118,7 +148,8 @@ function setupEvents() {
 
   // Clear Search
   const clearBtn = document.getElementById('btn-clear-deck-search');
-  if (clearBtn && searchInput) {
+  if (clearBtn && searchInput && !clearBtn.dataset.bound) {
+    clearBtn.dataset.bound = 'true';
     clearBtn.addEventListener('click', () => {
       searchInput.value = '';
       currentSearch = '';
@@ -130,14 +161,17 @@ function setupEvents() {
   // Category Filter Pills
   const pills = document.querySelectorAll('.filter-pill');
   pills.forEach(pill => {
-    pill.addEventListener('click', () => {
-      pills.forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      activeCategory = pill.getAttribute('data-category');
-      currentPage = 1;
-      if (window.audioPlayer) window.audioPlayer.playSFX('click');
-      fetchOperatives();
-    });
+    if (!pill.dataset.bound) {
+      pill.dataset.bound = 'true';
+      pill.addEventListener('click', () => {
+        pills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        activeCategory = pill.getAttribute('data-category');
+        currentPage = 1;
+        if (window.audioPlayer) window.audioPlayer.playSFX('click');
+        fetchOperatives();
+      });
+    }
   });
 
   setupBackToTop();
@@ -195,22 +229,44 @@ async function fetchOperatives() {
     if (activeCategory && activeCategory !== 'All') params.set('category', activeCategory);
 
     let data = null;
-    try {
-      const res = await fetch(`/api/members?${params.toString()}`);
-      if (res.ok) {
-        data = await res.json();
-      }
-    } catch (e) {}
 
-    // Static fallback for GitHub Pages
+    // 1. In-memory cached static members list (fastest, zero network delay or failure)
+    if (window.__rawMembersCache && Array.isArray(window.__rawMembersCache) && window.__rawMembersCache.length > 0) {
+      data = buildStaticMembersResponse(window.__rawMembersCache);
+    }
+
+    // 2. Try Node.js server API
     if (!data) {
-      let staticRes = await fetch('./data/members.json').catch(() => null);
-      if (!staticRes || !staticRes.ok) {
-        staticRes = await fetch('data/members.json').catch(() => null);
-      }
-      if (staticRes && staticRes.ok) {
-        const rawMembers = await staticRes.json();
-        data = buildStaticMembersResponse(rawMembers);
+      try {
+        const res = await fetch(`/api/members?${params.toString()}`);
+        if (res.ok) {
+          data = await res.json();
+        }
+      } catch (e) {}
+    }
+
+    // 3. Fallback to static JSON file (for GitHub Pages or static hosting)
+    if (!data) {
+      const base = getAppBasePath();
+      const candidateUrls = [
+        base + 'data/members.json',
+        './data/members.json',
+        'data/members.json',
+        '../data/members.json'
+      ];
+
+      for (const url of candidateUrls) {
+        try {
+          const staticRes = await fetch(url);
+          if (staticRes && staticRes.ok) {
+            const rawMembers = await staticRes.json();
+            if (Array.isArray(rawMembers) && rawMembers.length > 0) {
+              window.__rawMembersCache = rawMembers;
+              data = buildStaticMembersResponse(rawMembers);
+              break;
+            }
+          }
+        } catch (e) {}
       }
     }
 

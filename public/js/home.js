@@ -7,23 +7,46 @@
  * - Expandable YouTube Audio Engine
  */
 
+function getAppBasePath() {
+  const p = window.location.pathname;
+  const idx = p.lastIndexOf('/');
+  if (idx >= 0) {
+    return p.substring(0, idx + 1);
+  }
+  return './';
+}
+
 function resolveAssetUrl(url) {
   if (!url) return '';
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
-  if (url.startsWith('/uploads/')) return '.' + url;
-  return url;
+  const base = getAppBasePath();
+  let cleanUrl = url;
+  if (cleanUrl.startsWith('./')) cleanUrl = cleanUrl.slice(2);
+  if (cleanUrl.startsWith('/')) {
+    if (base !== '/' && !cleanUrl.startsWith(base)) {
+      return base + cleanUrl.slice(1);
+    }
+    return cleanUrl;
+  }
+  return base + cleanUrl;
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    let res = await fetch('/api/config').catch(() => null);
-    if (!res || !res.ok) {
-      res = await fetch('./data/config.json').catch(() => null);
+    let config = window.__configCache || null;
+    if (!config) {
+      let res = await fetch('/api/config').catch(() => null);
+      if (!res || !res.ok) {
+        const base = getAppBasePath();
+        const urls = [base + 'data/config.json', './data/config.json', 'data/config.json'];
+        for (const u of urls) {
+          res = await fetch(u).catch(() => null);
+          if (res && res.ok) break;
+        }
+      }
+      config = res && res.ok ? await res.json() : {};
+      window.__configCache = config;
     }
-    if (!res || !res.ok) {
-      res = await fetch('data/config.json').catch(() => null);
-    }
-    const config = res ? await res.json() : {};
 
     applyHomeConfig(config);
     setupActionButtons(config);
@@ -148,12 +171,29 @@ function setupActionButtons(config) {
 
   // Handle browser back/forward buttons seamlessly
   window.addEventListener('popstate', (e) => {
-    if (window.location.pathname === '/members') {
+    const state = e.state;
+    const path = window.location.pathname;
+    const isMembers = (state && state.view === 'members') || 
+                      path.endsWith('members.html') || 
+                      path.endsWith('/members');
+    if (isMembers) {
       transitionToMembersView(false);
     } else {
       transitionToHomeView(false);
     }
   });
+}
+
+function getHomeUrl() {
+  const isGh = window.location.hostname.includes('github.io') || window.location.protocol === 'file:' || window.location.pathname.endsWith('.html');
+  const base = getAppBasePath();
+  return isGh ? base : '/';
+}
+
+function getMembersUrl() {
+  const isGh = window.location.hostname.includes('github.io') || window.location.protocol === 'file:' || window.location.pathname.endsWith('.html');
+  const base = getAppBasePath();
+  return isGh ? (base.endsWith('/') ? base + 'members.html' : base + '/members.html') : '/members';
 }
 
 async function transitionToMembersView(pushHistory = true) {
@@ -162,13 +202,20 @@ async function transitionToMembersView(pushHistory = true) {
 
   if (!membersView) {
     try {
-      let res = await fetch('members.html').catch(() => null);
-      if (!res || !res.ok) {
-        res = await fetch('/members').catch(() => null);
+      const base = getAppBasePath();
+      const candidateUrls = [
+        base + 'members.html',
+        './members.html',
+        'members.html',
+        '/members'
+      ];
+      let res = null;
+      for (const u of candidateUrls) {
+        res = await fetch(u).catch(() => null);
+        if (res && res.ok) break;
       }
-      if (!res || !res.ok) {
-        res = await fetch('./members.html');
-      }
+      if (!res || !res.ok) throw new Error('Could not fetch members view');
+
       const htmlText = await res.text();
       const parser = new DOMParser();
       const doc = parser.parseFromString(htmlText, 'text/html');
@@ -209,14 +256,14 @@ async function transitionToMembersView(pushHistory = true) {
       if (!window.__membersJsLoaded) {
         window.__membersJsLoaded = true;
         const script = document.createElement('script');
-        script.src = './js/members.js?v=4.3';
+        script.src = resolveAssetUrl('js/members.js?v=4.4');
         document.body.appendChild(script);
       } else if (typeof window.initMembersPage === 'function') {
         window.initMembersPage();
       }
     } catch (err) {
       console.error('Seamless transition fallback to full navigation:', err);
-      window.location.href = 'members.html';
+      window.location.href = getMembersUrl();
       return;
     }
   } else {
@@ -247,8 +294,7 @@ async function transitionToMembersView(pushHistory = true) {
   }
 
   if (pushHistory) {
-    const isGh = window.location.hostname.includes('github.io') || window.location.protocol === 'file:' || window.location.pathname.endsWith('.html');
-    history.pushState({ view: 'members' }, '', isGh ? 'members.html' : '/members');
+    history.pushState({ view: 'members' }, '', getMembersUrl());
   }
 
   if (window.logoViewerInstance && typeof window.logoViewerInstance.pause === 'function') {
@@ -282,7 +328,7 @@ function transitionToHomeView(pushHistory = true) {
   }
 
   if (pushHistory) {
-    history.pushState({ view: 'home' }, '', '/');
+    history.pushState({ view: 'home' }, '', getHomeUrl());
   }
 
   if (window.logoViewerInstance && typeof window.logoViewerInstance.resume === 'function') {
