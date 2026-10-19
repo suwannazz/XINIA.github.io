@@ -179,10 +179,14 @@
           <h1>แผงควบคุมระบบหลังบ้าน</h1>
           <p>ปรับแต่งข้อมูลแก๊ง, โลโก้ 3 มิติ, รูปภาพพื้นหลัง และสมาชิกได้ทันที</p>
         </div>
-        <div class="header-actions">
+        <div class="header-actions" style="display:flex;gap:0.75rem;align-items:center;">
           <button class="btn-save-master" id="btn-save-master">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
             <span>บันทึกการตั้งค่า</span>
+          </button>
+          <button type="button" class="btn-save-master" id="btn-deploy-master" style="background:linear-gradient(135deg, #10b981 0%, #059669 100%);border-color:#10b981;box-shadow:0 0 15px rgba(16,185,129,0.3);" title="ส่งข้อมูลขึ้น GitHub Pages ทันที">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"></path><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            <span>🚀 ส่งขึ้นเว็บจริง (Deploy)</span>
           </button>
         </div>
       </header>

@@ -48,6 +48,44 @@ function copyDirRecursive(src, dest) {
   }
 }
 
+function findCloudflaredBinary() {
+  try {
+    const stdout = execSync('where cloudflared', { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] });
+    const line = stdout.split(/\r?\n/)[0].trim();
+    if (line && fs.existsSync(line)) return line;
+  } catch (e) {}
+
+  const localBin = path.join(__dirname, 'cloudflared.exe');
+  if (fs.existsSync(localBin)) return localBin;
+
+  const defaultWinPath = 'C:\\Program Files (x86)\\cloudflared\\cloudflared.exe';
+  if (fs.existsSync(defaultWinPath)) return defaultWinPath;
+
+  return null;
+}
+
+async function ensureCloudflared() {
+  let bin = findCloudflaredBinary();
+  if (bin) return bin;
+
+  const localBin = path.join(__dirname, 'cloudflared.exe');
+  console.log(`${C_YELLOW}[*] ยังไม่มี Cloudflare Tunnel ในเครื่อง${C_RESET}`);
+  console.log(`${C_CYAN}[*] กำลังดาวน์โหลด cloudflared.exe อัตโนมัติ (ครั้งแรกครั้งเดียว ~15MB)...${C_RESET}`);
+
+  try {
+    const psCmd = `[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe' -OutFile '${localBin}'`;
+    execSync(`powershell -NoProfile -ExecutionPolicy Bypass -Command "${psCmd}"`, { stdio: 'inherit' });
+    if (fs.existsSync(localBin)) {
+      console.log(`${C_GREEN}[+] ดาวน์โหลด Cloudflare Tunnel สำเร็จเรียบร้อย!${C_RESET}\n`);
+      return localBin;
+    }
+  } catch (err) {
+    console.log(`${C_YELLOW}[!] ไม่สามารถดาวน์โหลด cloudflared.exe ได้: ${err.message}${C_RESET}`);
+  }
+
+  return null;
+}
+
 async function main() {
   banner();
 
@@ -92,8 +130,36 @@ async function main() {
     console.log(`${C_GREEN}[+] เซิร์ฟเวอร์หลังบ้านกำลังทำงานอยู่แล้ว (Port 3000)${C_RESET}`);
   }
 
-  // เปิดเบราว์เซอร์อัตโนมัติ
-  console.log(`${C_CYAN}[+] กำลังเปิดหน้าต่างระบบหลังบ้านในเบราว์เซอร์...${C_RESET}`);
+  // เริ่มต้นรัน Cloudflare Tunnel
+  let cloudflareProc = null;
+  let publicTunnelUrl = null;
+
+  const cfBin = await ensureCloudflared();
+  if (cfBin) {
+    console.log(`${C_CYAN}[*] กำลังเชื่อมต่อ Cloudflare Tunnel สร้างลิงก์ให้แอดมินคนอื่นเข้าได้จากที่อื่น...${C_RESET}`);
+    cloudflareProc = spawn(cfBin, ['tunnel', '--url', 'http://localhost:3000'], {
+      stdio: ['ignore', 'pipe', 'pipe']
+    });
+
+    const checkOutput = (data) => {
+      const text = data.toString();
+      const match = text.match(/https:\/\/[a-z0-9-]+\.trycloudflare\.com/i);
+      if (match && !publicTunnelUrl) {
+        publicTunnelUrl = match[0];
+        console.log(`\n${C_GREEN}${C_BOLD}======================================================================${C_RESET}`);
+        console.log(`${C_GREEN}${C_BOLD} 🌐 ลิงก์ออนไลน์ Cloudflare Tunnel สำหรับส่งให้แอดมินคนอื่น:${C_RESET}`);
+        console.log(`${C_CYAN}${C_BOLD}    👉 ${publicTunnelUrl}/admin.html${C_RESET}`);
+        console.log(`${C_YELLOW} (ส่งลิงก์นี้ให้เพื่อน/แอดมินคนอื่นเปิดในคอมหรือมือถือเพื่อเข้ามาแก้ไขได้ทันที!)${C_RESET}`);
+        console.log(`${C_GREEN}${C_BOLD}======================================================================${C_RESET}\n`);
+      }
+    };
+
+    cloudflareProc.stderr.on('data', checkOutput);
+    cloudflareProc.stdout.on('data', checkOutput);
+  }
+
+  // เปิดเบราว์เซอร์อัตโนมัติสำหรับเครื่องนี้
+  console.log(`${C_CYAN}[+] กำลังเปิดหน้าต่างระบบหลังบ้านในเครื่องของคุณ (Local)...${C_RESET}`);
   try {
     execSync('start http://localhost:3000/admin.html', { shell: true });
   } catch (e) {
@@ -102,9 +168,11 @@ async function main() {
 
   console.log(`\n${C_CYAN}======================================================================${C_RESET}`);
   console.log(`${C_BOLD} [คำแนะนำขั้นตอนการใช้งาน]${C_RESET}`);
-  console.log(` 1. เข้าสู่ระบบด้วย Username/Password ในหน้าต่างเบราว์เซอร์`);
-  console.log(` 2. แก้ไขข้อมูลสมาชิก, ธีมแก๊ง, หรือเพลง แล้วกดปุ่ม "บันทึก" ในหน้าเว็บ`);
-  console.log(` 3. เมื่อแก้ไขเสร็จแล้ว ให้กลับมาที่หน้าต่างนี้เพื่อส่งข้อมูลขึ้นเว็บจริง`);
+  console.log(` 1. ใส่รหัส PIN เพื่อเข้าใช้งานระบบหลังบ้าน`);
+  console.log(` 2. แก้ไขข้อมูลสมาชิก, ธีมแก๊ง, หรือเพลง แล้วกดปุ่ม "บันทึกการตั้งค่า"`);
+  console.log(` 3. เมื่อแก้ไขเสร็จแล้ว สามารถส่งข้อมูลขึ้นเว็บจริงได้ 2 วิธี:`);
+  console.log(`    - วิธีที่ A: กดปุ่ม "🚀 ส่งขึ้นเว็บจริง (Deploy)" ในหน้าเว็บ Admin`);
+  console.log(`    - วิธีที่ B: หรือกลับมาที่หน้าต่างดำนี้แล้วกด [ENTER] เพื่อ Push ทันที`);
   console.log(`${C_CYAN}======================================================================${C_RESET}\n`);
 
   const rl = readline.createInterface({
@@ -112,10 +180,20 @@ async function main() {
     output: process.stdout
   });
 
+  const cleanup = () => {
+    if (cloudflareProc) {
+      try { cloudflareProc.kill(); } catch (e) {}
+    }
+  };
+
+  process.on('exit', cleanup);
+  process.on('SIGINT', () => { cleanup(); process.exit(0); });
+
   rl.question(`${C_YELLOW}>> กด [ENTER] เพื่อ Push ข้อมูลขึ้น GitHub Pages ทันที (หรือพิมพ์ Q เพื่อออก): ${C_RESET}`, async (ans) => {
     rl.close();
     if (ans.trim().toLowerCase() === 'q') {
       console.log(`\n${C_YELLOW}[*] ปิดโปรแกรมเรียบร้อย (ไม่ได้ส่งข้อมูลขึ้น GitHub)${C_RESET}`);
+      cleanup();
       return;
     }
 
@@ -145,7 +223,7 @@ async function main() {
 
       console.log(`\n${C_GREEN}${C_BOLD}======================================================================${C_RESET}`);
       console.log(`${C_GREEN}${C_BOLD} [SUCCESS] ส่งข้อมูลขึ้น GitHub Pages เรียบร้อยแล้ว!${C_RESET}`);
-      console.log(` GitHub Actions กำลังทำการ Deploy หน้าเว็บจริงให้อัตโนมัติ (รอ ~30-60 วินาที)`);
+      console.log(` GitHub Actions กำลังทำการ Deploy หน้าเว็บจริงให้อัตโนมัติ (รอ ~30-45 วินาที)`);
       console.log(`\n ลิงก์หน้าหลัก : https://suwannazz.github.io/XINIA.github.io/`);
       console.log(` ลิงก์สมาชิก   : https://suwannazz.github.io/XINIA.github.io/members.html`);
       console.log(`${C_GREEN}${C_BOLD}======================================================================${C_RESET}\n`);
@@ -155,6 +233,7 @@ async function main() {
       console.log(`${C_YELLOW}กรุณาตรวจสอบว่ามีอินเทอร์เน็ต และสิทธิ์การเข้าถึง GitHub หรือไม่${C_RESET}\n`);
     }
 
+    cleanup();
     console.log('กดปุ่มใดก็ได้เพื่อปิดหน้าต่างนี้...');
     process.stdin.setRawMode(true);
     process.stdin.resume();

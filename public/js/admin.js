@@ -541,6 +541,45 @@ async function saveAllConfig() {
 // Master Save Button
 document.getElementById('btn-save-master').addEventListener('click', saveAllConfig);
 
+// Deploy to GitHub Pages Button
+const btnDeployMaster = document.getElementById('btn-deploy-master');
+if (btnDeployMaster) {
+  btnDeployMaster.addEventListener('click', async () => {
+    if (!confirm('ยืนยันส่งข้อมูลและไฟล์ทั้งหมดขึ้น GitHub Pages จริงตอนนี้ใช่หรือไม่?')) {
+      return;
+    }
+
+    const origHtml = btnDeployMaster.innerHTML;
+    btnDeployMaster.disabled = true;
+    btnDeployMaster.style.opacity = '0.7';
+    btnDeployMaster.innerHTML = `<span>⏳ กำลังส่งข้อมูลขึ้น GitHub...</span>`;
+    showToast('กำลังเตรียมไฟล์และ Push ขึ้น GitHub Pages...');
+
+    try {
+      const res = await authFetch('/api/deploy-to-github', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        showToast(data.message || 'ส่งข้อมูลขึ้น GitHub Pages สำเร็จเรียบร้อย!');
+        alert('🚀 ส่งข้อมูลขึ้น GitHub Pages เรียบร้อยแล้ว!\n\nระบบ GitHub Actions กำลังทำการ Deploy ให้หน้าเว็บจริงอัปเดต โดยใช้เวลาประมาณ 30-45 วินาทีครับ');
+      } else {
+        showToast(data.error || 'เกิดข้อผิดพลาดในการส่งข้อมูลขึ้น GitHub', true);
+        alert('เกิดข้อผิดพลาด: ' + (data.error || 'Unknown error'));
+      }
+    } catch (err) {
+      showToast('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์เพื่อ Push ข้อมูลได้', true);
+    } finally {
+      btnDeployMaster.disabled = false;
+      btnDeployMaster.style.opacity = '1';
+      btnDeployMaster.innerHTML = origHtml;
+    }
+  });
+}
+
 // ================= 3D MINI PREVIEW IN ADMIN =================
 function initMini3DPreview() {
   const container = document.getElementById('admin-mini-3d');

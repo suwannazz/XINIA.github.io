@@ -724,6 +724,51 @@ app.get('/api/youtube-info', async (req, res) => {
   }
 });
 
+// Deploy to GitHub Pages API (accessible by local or Cloudflare remote admin)
+app.post('/api/deploy-to-github', (req, res) => {
+  const pin = req.headers['x-admin-pin'] || req.body?.pin;
+  const config = readJson(CONFIG_FILE, {});
+  const correctPin = config.security?.adminPin || 'admin123';
+
+  if (!pin || pin !== correctPin) {
+    return res.status(401).json({ success: false, error: 'รหัส PIN ไม่ถูกต้อง (Unauthorized)' });
+  }
+
+  try {
+    const { execSync } = require('child_process');
+
+    // 1. Sync data folder to public/data
+    const dataDir = path.join(__dirname, 'data');
+    const publicDataDir = path.join(__dirname, 'public', 'data');
+    if (fs.existsSync(dataDir)) {
+      if (!fs.existsSync(publicDataDir)) fs.mkdirSync(publicDataDir, { recursive: true });
+      const entries = fs.readdirSync(dataDir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (!entry.isDirectory()) {
+          fs.copyFileSync(path.join(dataDir, entry.name), path.join(publicDataDir, entry.name));
+        }
+      }
+    }
+
+    // 2. Commit and Push
+    execSync('git add -A', { cwd: __dirname });
+    try {
+      execSync('git commit -m "update: gang data via admin panel"', { cwd: __dirname });
+    } catch (e) {
+      // Nothing to commit is fine
+    }
+    execSync('git push origin main', { cwd: __dirname });
+
+    res.json({
+      success: true,
+      message: 'ส่งข้อมูลขึ้น GitHub Pages เรียบร้อยแล้ว! หน้าเว็บจริงจะอัปเดตใน ~30-45 วินาที'
+    });
+  } catch (err) {
+    console.error('Error during git deploy:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Fallback to index.html for client routing
 app.use((req, res) => {
   const filePath = path.join(__dirname, 'public', 'index.html');
