@@ -404,11 +404,10 @@ function populateFormWithConfig(cfg) {
   setSlider('audio_volume', audio.volume ?? 0.35);
   setValue('audio_title', audio.title || '');
   setValue('audio_artist', audio.artist || '');
-  setValue('audio_startTime', audio.startTime ?? '0');
-  setValue('audio_endTime', audio.endTime ?? '');
   setValue('audio_src', audio.src || '');
   setValue('audio_cover', audio.cover || '');
   setPreview('preview_audioCover', audio.cover);
+  initAudioScrubber(audio.src || '/uploads/music.mp3', audio.startTime ?? 0);
 }
 
 function setValue(id, val) {
@@ -499,8 +498,8 @@ async function saveAllConfig() {
       autoPlay: getCheck('audio_autoPlay', currentAudio.autoPlay),
       type: 'mp3',
       youtubeUrl: '',
-      startTime: getVal('audio_startTime', currentAudio.startTime || '0'),
-      endTime: getVal('audio_endTime', currentAudio.endTime || '0'),
+      startTime: parseInt(document.getElementById('audio_startTime')?.value || 0, 10),
+      endTime: '0',
       loop: getCheck('audio_loop', currentAudio.loop),
       sfxEnabled: getCheck('audio_sfxEnabled', currentAudio.sfxEnabled),
       volume: getNum('audio_volume', currentAudio.volume ?? 0.35),
@@ -599,7 +598,15 @@ function setupFileUploads() {
       mini3DViewer.updateConfig({ logoUrl: document.getElementById('theme_logoImage').value });
     }
   });
-  bindUploader('upload_audio_file', 'audio_src');
+  bindUploader('upload_audio_file', 'audio_src', null, (url) => {
+    initAudioScrubber(url, 0);
+  });
+  const audioSrcInput = document.getElementById('audio_src');
+  if (audioSrcInput) {
+    audioSrcInput.addEventListener('change', () => {
+      initAudioScrubber(audioSrcInput.value, 0);
+    });
+  }
   bindUploader('upload_cover_file', 'audio_cover', 'preview_audioCover');
   bindUploader('upload_glb_file', 'three_modelUrl', null, () => {
     document.getElementById('three_mode').value = 'model';
@@ -1299,43 +1306,89 @@ async function fetchYouTubeInfo(url, isManual = false) {
   }
 }
 
-function parseAudioTime(val) {
-  if (typeof val === 'number') return Math.max(0, val);
-  if (!val) return 0;
-  const str = String(val).trim().toLowerCase();
-  if (!str) return 0;
-  if (str.includes(':')) {
-    const parts = str.split(':');
-    if (parts.length === 2) {
-      return (parseInt(parts[0], 10) || 0) * 60 + (parseFloat(parts[1]) || 0);
-    } else if (parts.length === 3) {
-      return (parseInt(parts[0], 10) || 0) * 3600 + (parseInt(parts[1], 10) || 0) * 60 + (parseFloat(parts[2]) || 0);
-    }
+function formatTime(seconds) {
+  if (isNaN(seconds) || seconds < 0) return '00:00';
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+let audioScrubberDuration = 180;
+let audioDurationChecker = null;
+
+function initAudioScrubber(src, initialStartTime = 0) {
+  const slider = document.getElementById('audio_startTime');
+  const badge = document.getElementById('audio_startTime_badge');
+  const maxLabel = document.getElementById('audio_maxDuration_label');
+  if (!slider) return;
+
+  if (!src) src = document.getElementById('audio_src')?.value || '/uploads/music.mp3';
+
+  if (audioDurationChecker) {
+    audioDurationChecker.pause();
+    audioDurationChecker = null;
   }
-  return parseFloat(str) || 0;
+
+  const audioObj = new Audio(src);
+  audioObj.preload = 'metadata';
+  audioDurationChecker = audioObj;
+
+  const onMeta = () => {
+    if (audioObj.duration && !isNaN(audioObj.duration) && audioObj.duration !== Infinity && audioObj.duration > 0) {
+      audioScrubberDuration = Math.floor(audioObj.duration);
+      slider.max = audioScrubberDuration;
+      if (maxLabel) maxLabel.textContent = `จบเพลง (${formatTime(audioScrubberDuration)}) ⏩`;
+      const val = Math.min(audioScrubberDuration, Math.max(0, parseInt(initialStartTime || slider.value || 0, 10)));
+      slider.value = val;
+      if (badge) badge.textContent = `${formatTime(val)} / ${formatTime(audioScrubberDuration)}`;
+    }
+  };
+
+  audioObj.addEventListener('loadedmetadata', onMeta, { once: true });
+  audioObj.addEventListener('canplay', onMeta, { once: true });
+  if (audioObj.readyState >= 1) {
+    onMeta();
+  }
 }
 
 function setupAudioTestPlayer() {
+  const slider = document.getElementById('audio_startTime');
+  const badge = document.getElementById('audio_startTime_badge');
   const btnTest = document.getElementById('btn-test-mp3-play');
-  if (!btnTest) return;
+  const btnScrubber = document.getElementById('btn-scrubber-play');
+  if (!slider) return;
 
-  btnTest.addEventListener('click', () => {
+  // When dragging the slider left/right
+  slider.addEventListener('input', (e) => {
+    const val = parseInt(e.target.value, 10) || 0;
+    if (badge) {
+      badge.textContent = `${formatTime(val)} / ${formatTime(audioScrubberDuration)}`;
+    }
+    // Live scrub while playing
+    if (adminTestAudioPlayer && !adminTestAudioPlayer.paused) {
+      try {
+        adminTestAudioPlayer.currentTime = val;
+      } catch (err) {}
+    }
+  });
+
+  const toggleTestPlayback = () => {
     const src = (document.getElementById('audio_src')?.value || '').trim();
     const volume = parseFloat(document.getElementById('audio_volume')?.value || '0.35');
-    const startStr = (document.getElementById('audio_startTime')?.value || '0').trim();
-    const endStr = (document.getElementById('audio_endTime')?.value || '').trim();
-    const startSec = parseAudioTime(startStr);
-    const endSec = parseAudioTime(endStr);
+    const startSec = parseInt(slider.value || 0, 10);
 
     if (!src) {
       showToast('กรุณาระบุไฟล์เพลงหรือ URL .mp3 ก่อนทดสอบฟัง', true);
       return;
     }
 
+    // Toggle pause if playing
     if (adminTestAudioPlayer && !adminTestAudioPlayer.paused) {
       adminTestAudioPlayer.pause();
       adminTestAudioPlayer = null;
-      btnTest.textContent = '▶ ทดสอบฟังเพลง (Test Play)';
+      if (btnTest) btnTest.textContent = '▶ ทดสอบฟังเพลง (Test Play)';
+      if (btnScrubber) btnScrubber.textContent = '▶ ฟังจุดนี้ (Test This Spot)';
+      if (badge) badge.textContent = `${formatTime(slider.value)} / ${formatTime(audioScrubberDuration)}`;
       showToast('หยุดเล่นเพลงทดสอบแล้ว');
       return;
     }
@@ -1350,7 +1403,7 @@ function setupAudioTestPlayer() {
       adminTestAudioPlayer.volume = isNaN(volume) ? 0.35 : Math.max(0, Math.min(1, volume));
 
       const applySeek = () => {
-        if (startSec > 0 && adminTestAudioPlayer) {
+        if (adminTestAudioPlayer && startSec > 0) {
           try {
             adminTestAudioPlayer.currentTime = startSec;
           } catch (e) {}
@@ -1358,34 +1411,41 @@ function setupAudioTestPlayer() {
       };
 
       adminTestAudioPlayer.addEventListener('loadedmetadata', applySeek, { once: true });
+      adminTestAudioPlayer.addEventListener('canplay', applySeek, { once: true });
 
       adminTestAudioPlayer.play().then(() => {
         applySeek();
-        btnTest.textContent = '⏸ หยุดทดสอบฟัง';
-        showToast(`กำลังเล่นเพลงทดสอบ (เริ่มท่อน: ${startStr || '0:00'})...`);
+        if (btnTest) btnTest.textContent = '⏸ หยุดฟัง (Pause)';
+        if (btnScrubber) btnScrubber.textContent = '⏸ หยุดฟัง (Pause)';
+        showToast(`กำลังเล่นเพลงทดสอบ (เริ่มท่อน: ${formatTime(startSec)})...`);
       }).catch(err => {
         showToast('ไม่สามารถเล่นไฟล์เสียงได้ กรุณาตรวจสอบลิงก์หรือไฟล์ .mp3', true);
       });
 
-      if (endSec > startSec) {
-        adminTestAudioPlayer.addEventListener('timeupdate', () => {
-          if (adminTestAudioPlayer && adminTestAudioPlayer.currentTime >= endSec) {
-            adminTestAudioPlayer.pause();
-            adminTestAudioPlayer = null;
-            btnTest.textContent = '▶ ทดสอบฟังเพลง (Test Play)';
-            showToast('เล่นถึงเวลาท่อนจบที่กำหนดแล้ว');
+      // Live update badge as music plays
+      adminTestAudioPlayer.addEventListener('timeupdate', () => {
+        if (adminTestAudioPlayer && !slider.matches(':active')) {
+          const cur = Math.floor(adminTestAudioPlayer.currentTime);
+          const dur = Math.floor(adminTestAudioPlayer.duration || audioScrubberDuration);
+          if (badge) {
+            badge.textContent = `${formatTime(cur)} / ${formatTime(dur)} (กำลังเล่น)`;
           }
-        });
-      }
+        }
+      });
 
       adminTestAudioPlayer.addEventListener('ended', () => {
-        btnTest.textContent = '▶ ทดสอบฟังเพลง (Test Play)';
+        if (btnTest) btnTest.textContent = '▶ ทดสอบฟังเพลง (Test Play)';
+        if (btnScrubber) btnScrubber.textContent = '▶ ฟังจุดนี้ (Test This Spot)';
+        if (badge) badge.textContent = `${formatTime(slider.value)} / ${formatTime(audioScrubberDuration)}`;
         adminTestAudioPlayer = null;
       });
     } catch (e) {
       showToast('เกิดข้อผิดพลาดในการโหลดไฟล์เสียง', true);
     }
-  });
+  };
+
+  if (btnTest) btnTest.addEventListener('click', toggleTestPlayback);
+  if (btnScrubber) btnScrubber.addEventListener('click', toggleTestPlayback);
 }
 
 function showToast(msg, isError = false) {

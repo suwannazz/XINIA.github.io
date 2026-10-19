@@ -353,12 +353,17 @@ class GangAudioPlayer {
       if (!this.initialSeekDone && start > 0) {
         try {
           this.htmlAudio.currentTime = start;
-          this.initialSeekDone = true;
         } catch (e) {}
       }
       this.htmlAudio.muted = false;
       this.htmlAudio.volume = this.options.volume;
       this.htmlAudio.play().then(() => {
+        if (!this.initialSeekDone && start > 0) {
+          try {
+            this.htmlAudio.currentTime = start;
+            this.initialSeekDone = true;
+          } catch (e) {}
+        }
         this.setPlayingState(true);
         this.startLoopMonitor();
         this.startProgressMonitor();

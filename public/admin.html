@@ -538,18 +538,33 @@
               </div>
             </div>
 
-            <!-- Timing Controls -->
-            <div class="form-grid-2" style="margin-top:1.25rem;">
-              <div class="form-group">
-                <label>⏱️ เวลาเริ่มเล่นเพลง (Start Timestamp)</label>
-                <input type="text" id="audio_startTime" class="form-input" placeholder="เช่น 0:30 หรือ 30 (วินาที)" />
-                <p style="font-size:0.75rem;color:#64748b;margin-top:0.25rem;">กำหนดเวลาเริ่มเล่นเพลง เช่น <code>0:45</code> หรือ <code>45</code> (เว้นว่างหรือ 0 = เริ่มตั้งแต่ต้นเพลง)</p>
+            <!-- Interactive Audio Timeline Scrubber (เลื่อนซ้าย-ขวา) -->
+            <div class="form-group" style="margin-top:1.5rem;padding:1.2rem;background:rgba(0,0,0,0.35);border:1px solid rgba(0,240,255,0.25);border-radius:8px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;margin-bottom:0.75rem;">
+                <label style="font-size:0.95rem;font-weight:700;color:#ffffff;display:flex;align-items:center;gap:0.5rem;margin:0;">
+                  <span>⏱️ เลื่อนเลือกจุดเริ่มเล่นเพลง (Start Time Scrubber)</span>
+                </label>
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                  <span id="audio_startTime_badge" style="display:inline-block;padding:0.25rem 0.75rem;background:rgba(0,240,255,0.15);border:1px solid #00f0ff;border-radius:4px;color:#00f0ff;font-family:monospace;font-size:1.05rem;font-weight:700;">
+                    00:00 / --:--
+                  </span>
+                  <button type="button" class="hud-btn" id="btn-scrubber-play" style="padding:0.35rem 0.9rem;font-size:0.8rem;background:rgba(0,240,255,0.2);border-color:#00f0ff;color:#00f0ff;white-space:nowrap;">
+                    ▶ ฟังจุดนี้ (Test This Spot)
+                  </button>
+                </div>
               </div>
-              <div class="form-group">
-                <label>⏱️ เวลาจบท่อนเพลง (End Timestamp - ตัวเลือก)</label>
-                <input type="text" id="audio_endTime" class="form-input" placeholder="เช่น 1:30 หรือ 90 (0 = เล่นจนจบเพลง)" />
-                <p style="font-size:0.75rem;color:#64748b;margin-top:0.25rem;">ปล่อยว่างหรือใส่ 0 เพื่อเล่นจนจบเพลง หรือใส่เวลาเพื่อตัดจบท่อน</p>
+
+              <!-- Range Slider Track -->
+              <div class="range-wrapper" style="margin-top:0.25rem;">
+                <input type="range" id="audio_startTime" class="range-slider" min="0" max="180" step="1" value="0" style="width:100%;cursor:pointer;height:10px;" />
               </div>
+
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;font-size:0.75rem;color:#64748b;">
+                <span>⏪ ต้นเพลง (00:00)</span>
+                <span id="audio_startTime_hint" style="color:#94a3b8;font-size:0.8rem;">👈 เลื่อนสไลเดอร์ซ้าย-ขวาเพื่อเลือกท่อนที่ต้องการเริ่มเพลง 👉</span>
+                <span id="audio_maxDuration_label">จบเพลง (--:--) ⏩</span>
+              </div>
+              <input type="hidden" id="audio_endTime" value="0" />
             </div>
 
             <!-- Optional Cover Artwork -->

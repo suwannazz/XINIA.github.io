@@ -12,7 +12,7 @@
     "footerUrl": ""
   },
   "theme": {
-    "backgroundImage": "/uploads/bg.jpg",
+    "backgroundImage": "/uploads/Gemini_Generated_Image_gwpwe9gwpwe9gwpw-1792387419264-828860184.jpg",
     "logoImage": "/uploads/logo.png",
     "primaryColor": "#ffffff",
     "accentColor": "#f59e0b",
@@ -39,14 +39,14 @@
     "autoPlay": false,
     "type": "mp3",
     "youtubeUrl": "",
-    "startTime": "0",
+    "startTime": 59,
     "endTime": "0",
     "loop": true,
     "sfxEnabled": false,
     "volume": 0.35,
     "title": "Around Me",
     "artist": "Noodah05",
-    "src": "/uploads/music.mp3",
+    "src": "/uploads/Y2Mate_is_-_PORZAX_-__MV-1792387315334-643031941.mp3",
     "cover": ""
   },
   "security": {
