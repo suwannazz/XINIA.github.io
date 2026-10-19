@@ -57,12 +57,22 @@ function checkAuth() {
     adminApp.style.display = 'none';
   }
 
+  const ghNotice = document.getElementById('gh-pages-static-notice');
+  if (ghNotice && (window.location.hostname.includes('github.io') || window.location.protocol === 'file:')) {
+    ghNotice.style.display = 'block';
+  }
+
   // Handle Login Form (Username & Password)
   const btnLogin = document.getElementById('btn-login-submit');
   const usernameInput = document.getElementById('login-username-input');
   const passwordInput = document.getElementById('login-password-input');
 
   const doLogin = async () => {
+    if (window.location.hostname.includes('github.io')) {
+      alert('GitHub Pages เป็นระบบโฮสต์เว็บแบบ Static (ไม่มีเซิร์ฟเวอร์ Node.js สำหรับประมวลผลการล็อกอินและบันทึกข้อมูล)\n\nกรุณาเปิดระบบจัดการหลังบ้านผ่านเครื่องของคุณเองที่:\nhttp://localhost:3000/admin.html ครับ');
+      return;
+    }
+
     const username = usernameInput ? usernameInput.value.trim() : '';
     const password = passwordInput ? passwordInput.value.trim() : '';
 
@@ -693,7 +703,7 @@ function renderMembersTable(filterCategory = 'All', search = '') {
       <tr>
         <td style="width:60px;">
           <div class="member-td-avatar">
-            <img src="${m.imageurl || '/uploads/logo.png'}" onerror="this.src='/uploads/logo.png';" />
+            <img src="${m.imageurl || './uploads/logo.png'}" onerror="this.onerror=null; this.src='./uploads/logo.png';" />
           </div>
         </td>
         <td>

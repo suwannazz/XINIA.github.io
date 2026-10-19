@@ -470,7 +470,7 @@ function createOperativeCardHtml(m, overrideType) {
       <!-- Left Side: Profile Picture (รูปโปรไฟล์) -->
       <div class="card-avatar-side">
         <div class="card-avatar-frame">
-          <img src="${avatar}" alt="${name}" loading="lazy" onerror="this.src='./uploads/logo.png';" />
+          <img src="${avatar}" alt="${name}" loading="lazy" onerror="this.onerror=null; this.src=resolveAssetUrl('uploads/logo.png');" />
         </div>
       </div>
 

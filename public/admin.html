@@ -4,22 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ระบบหลังบ้าน | GANG ADMIN PANEL</title>
-  <link rel="icon" href="/uploads/logo.png" type="image/png">
+  <link rel="icon" href="./uploads/logo.png" type="image/png">
 
   <!-- Three.js & GLTFLoader CDN for Admin 3D Preview -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
   <!-- Admin Stylesheet -->
-  <link rel="stylesheet" href="/css/admin.css?v=4.1">
+  <link rel="stylesheet" href="./css/admin.css?v=4.4">
 </head>
 <body>
 
   <!-- ================= LOGIN SCREEN ================= -->
   <div class="login-screen" id="login-screen">
     <div class="login-card">
+      <!-- Static Host Notice for GitHub Pages -->
+      <div id="gh-pages-static-notice" style="display:none;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.4);border-radius:8px;padding:0.9rem;margin-bottom:1.25rem;color:#fca5a5;font-size:0.8rem;line-height:1.45;text-align:left;">
+        <strong style="display:block;margin-bottom:0.3rem;color:#ef4444;font-size:0.85rem;">⚠️ ระบบหลังบ้านต้องการ Node.js Server</strong>
+        GitHub Pages เป็นเว็บโฮสต์แบบ Static เท่านั้น สำหรับการแก้ไขข้อมูลสมาชิก จัดการแก๊ง และอัปโหลดไฟล์ ให้เปิดผ่านเครื่องของคุณเองที่:<br>
+        <div style="margin:0.4rem 0;"><code style="background:rgba(0,0,0,0.5);padding:0.2rem 0.5rem;border-radius:4px;color:#38bdf8;font-family:monospace;">http://localhost:3000/admin.html</code></div>
+        <div style="margin-top:0.75rem;text-align:center;">
+          <a href="index.html" class="btn-login" style="display:inline-block;padding:0.4rem 1rem;font-size:0.75rem;text-decoration:none;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);">← กลับสู่หน้าหลัก (RETURN TO BASE)</a>
+        </div>
+      </div>
+
       <div class="login-logo">
-        <img src="/uploads/logo.png" id="login-gang-logo" alt="Logo" onerror="this.src='/uploads/logo.png';" />
+        <img src="./uploads/logo.png" id="login-gang-logo" alt="Logo" onerror="this.onerror=null; this.src='./uploads/logo.png';" />
       </div>
       <h1 class="login-title">ADMIN CONTROL</h1>
       <p class="login-subtitle">ระบบจัดการเว็บไซต์แก๊ง FIVEM (Role-Based Access)</p>
@@ -56,7 +66,7 @@
             </svg>
           </button>
           <div class="mobile-brand">
-            <img src="/uploads/logo.png" id="mobile-gang-logo" alt="Logo" onerror="this.src='/uploads/logo.png';" />
+            <img src="./uploads/logo.png" id="mobile-gang-logo" alt="Logo" onerror="this.onerror=null; this.src='./uploads/logo.png';" />
             <span id="mobile-gang-name">JAGUARX</span>
           </div>
         </div>
@@ -116,7 +126,7 @@
 
       <!-- Logged In User Profile Card -->
       <div class="sidebar-user-card" id="sidebar-user-card" style="padding:0.85rem 1rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;margin:0 1rem 1rem;display:flex;align-items:center;gap:0.75rem;">
-        <img id="admin-user-avatar" src="/uploads/logo.png" style="width:38px;height:38px;border-radius:50%;border:2px solid var(--cyber-cyan);object-fit:cover;" alt="User Avatar" onerror="this.src='/uploads/logo.png';" />
+        <img id="admin-user-avatar" src="./uploads/logo.png" style="width:38px;height:38px;border-radius:50%;border:2px solid var(--cyber-cyan);object-fit:cover;" alt="User Avatar" onerror="this.onerror=null; this.src='./uploads/logo.png';" />
         <div style="flex:1;min-width:0;">
           <div id="admin-user-fullname" style="font-family:var(--font-hud);font-size:0.85rem;font-weight:700;color:#ffffff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Wendy Gracilia</div>
           <span class="admin-role-pill" id="admin-user-role-badge" style="display:inline-block;padding:0.1rem 0.45rem;border-radius:3px;font-family:var(--font-tech);font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:rgba(245,158,11,0.2);color:#fbbf24;border:1px solid rgba(245,158,11,0.4);">FOUNDER</span>
@@ -638,11 +648,11 @@
               <label>รูปภาพโปรไฟล์ (Profile Avatar)</label>
               <div style="display:flex;gap:1.25rem;align-items:center;">
                 <div class="upload-preview-box" style="width:75px;height:75px;border-radius:50%;margin:0;border:2px solid var(--cyber-cyan);">
-                  <img id="my_profile_avatar_preview" src="/uploads/logo.png" alt="Avatar Preview" onerror="this.src='/uploads/logo.png';" />
+                  <img id="my_profile_avatar_preview" src="./uploads/logo.png" alt="Avatar Preview" onerror="this.onerror=null; this.src='./uploads/logo.png';" />
                 </div>
                 <div style="flex:1;">
                   <input type="file" id="my_profile_file" accept="image/*" class="form-input" style="padding:0.4rem;" />
-                  <input type="text" id="my_profile_image" class="form-input" style="margin-top:0.4rem;" placeholder="/uploads/logo.png หรือ URL รูปภาพ" />
+                  <input type="text" id="my_profile_image" class="form-input" style="margin-top:0.4rem;" placeholder="./uploads/logo.png หรือ URL รูปภาพ" />
                 </div>
               </div>
             </div>
@@ -658,7 +668,7 @@
               <label>🖼️ รูปภาพพื้นหลังโปรไฟล์ของฉัน (Personal Banner Wallpaper - สมาชิกตกแต่งพื้นหลังได้)</label>
               <div style="display:flex;gap:1rem;align-items:center;">
                 <div class="upload-preview-box" style="width:100px;height:55px;border-radius:6px;margin:0;border:1px solid rgba(255,255,255,0.2);overflow:hidden;">
-                  <img id="my_profile_banner_preview" src="/uploads/bg.jpg" alt="Banner Preview" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='/uploads/bg.jpg';" />
+                  <img id="my_profile_banner_preview" src="./uploads/bg.jpg" alt="Banner Preview" style="width:100%;height:100%;object-fit:cover;" onerror="this.onerror=null; this.src='./uploads/bg.jpg';" />
                 </div>
                 <div style="flex:1;">
                   <input type="file" id="my_profile_banner_file" accept="image/*" class="form-input" style="padding:0.4rem;" />
@@ -825,7 +835,7 @@
         <label>🖼️ รูปภาพพื้นหลังโปรไฟล์ส่วนตัว (Personal Banner Wallpaper - สมาชิกตกแต่งพื้นหลังได้)</label>
         <div style="display:flex;gap:1rem;align-items:center;">
           <div class="upload-preview-box" style="width:100px;height:55px;border-radius:6px;margin:0;border:1px solid rgba(255,255,255,0.2);overflow:hidden;">
-            <img id="modal_banner_preview" src="/uploads/bg.jpg" alt="Banner" style="width:100%;height:100%;object-fit:cover;" onerror="this.src='/uploads/bg.jpg';" />
+            <img id="modal_banner_preview" src="./uploads/bg.jpg" alt="Banner" style="width:100%;height:100%;object-fit:cover;" onerror="this.onerror=null; this.src='./uploads/bg.jpg';" />
           </div>
           <div style="flex:1;">
             <input type="file" id="modal_member_banner_file" accept="image/*" class="form-input" style="padding:0.4rem;" />
@@ -897,9 +907,9 @@
 
   <!-- Scripts -->
   <script src="https://www.youtube.com/iframe_api"></script>
-  <script src="/js/three-logo.js"></script>
-  <script src="/js/audio-player.js"></script>
-  <script src="/js/admin.js?v=4.0"></script>
+  <script src="./js/three-logo.js?v=4.4"></script>
+  <script src="./js/audio-player.js?v=4.4"></script>
+  <script src="./js/admin.js?v=4.4"></script>
 
 </body>
 </html>

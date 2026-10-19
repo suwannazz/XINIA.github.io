@@ -62,7 +62,7 @@ class ThreeLogoViewer {
           <div class="bracket-corner t-bot-r"></div>
         </div>
         <div class="dynamic-2d-img-box">
-          <img src="${this.options.logoUrl || './uploads/logo.png'}" id="dynamic-logo-element" alt="Gang Logo" onerror="this.src='./uploads/logo.png';" />
+          <img src="${this.options.logoUrl || './uploads/logo.png'}" id="dynamic-logo-element" alt="Gang Logo" onerror="this.onerror=null; this.src='./uploads/logo.png';" />
           <div class="dynamic-2d-shimmer"></div>
         </div>
       </div>
